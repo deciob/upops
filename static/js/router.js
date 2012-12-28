@@ -3,39 +3,45 @@
 define(['backbone', 'libs/geojson_miso_parser', 'views/world_map', 'views/country_map', 'views/country_info', 'views/top', 'views/footer_viz'], function(Backbone, GeoJsonParser, WorldMap, CountryMap, CountryViz, Top, FooterViz) {
   'use strict';
   return Backbone.Router.extend({
+    routes: {
+      "": "world",
+      "world/": "world",
+      "country/:code/": "country"
+    },
     options: {
       columns: ["geometry", "POP1950", "POP1955", "POP1960", "POP1965", "POP1970", "POP1975", "POP1980", "POP1985", "POP1990", "POP1995", "POP2000", "POP2005", "POP2010", "POP2015", "POP2020", "POP2025", "Country", "Urban_Aggl"]
     },
-    initData: function() {
-      if (!this.initData.data) {
-        this.initData.data = new Miso.Dataset({
-          options: this.options,
-          url: "static/data/urban_agglomerations_1950_2010.geojson",
-          parser: GeoJsonParser
-        });
-      }
-      return this.initData.data;
-    },
-    routes: {
-      "": "index"
-    },
-    index: function() {
-      var data, top;
+    initialize: function() {
+      var dataset, top, world,
+        _this = this;
       top = new Top();
       top.render();
-      data = this.initData();
-      return data.fetch({
-        success: function() {
-          var footer_viz, world_map;
-          console.log('index:data.fetch:success', this);
-          world_map = new WorldMap();
-          world_map.render();
-          footer_viz = new FooterViz();
-          return footer_viz.render();
-        },
-        error: function() {
-          return console.log('boooooooooooooooooooooooooooo');
-        }
+      dataset = new Miso.Dataset({
+        options: this.options,
+        url: "static/data/urban_agglomerations_1950_2010.geojson",
+        parser: GeoJsonParser
+      });
+      world = $.ajax("static/data/world-110m.json");
+      this.deferred = _.when(dataset.fetch(), world);
+      return this.deferred.done(function() {
+        console.log("onDataLoad", _this, arguments);
+        return _this.trigger('onDataLoad', arguments);
+      });
+    },
+    world: function() {
+      var _this = this;
+      return this.deferred.done(function() {
+        var footer_viz, world_map;
+        world_map = new WorldMap();
+        world_map.render(arguments);
+        footer_viz = new FooterViz();
+        return footer_viz.render();
+      });
+    },
+    country: function(code) {
+      var _this = this;
+      return this.deferred.done(function() {
+        return console.log('country:', code);
       });
     }
   });

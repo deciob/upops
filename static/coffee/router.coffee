@@ -12,6 +12,11 @@ define [
 
   Backbone.Router.extend(
 
+    routes:
+      "": "world"
+      "world/": "world"
+      "country/:code/": "country"
+
     options:
       # Used within the custom Miso parser: GeoJsonParser
       columns: [
@@ -35,43 +40,36 @@ define [
         "Country", 
         "Urban_Aggl"]
 
-    initData: ->
-      if not @initData.data
-        @initData.data = new Miso.Dataset(
-          options: @options
-          url: "static/data/urban_agglomerations_1950_2010.geojson"
-          parser : GeoJsonParser
-        )
-      @initData.data
-
-    fetchData: (data, success) ->
-      if not @fetchData.data
-
-    routes:
-      "": "index"
-  
-    index: ->
-
+    # For this application we have 2 datasets.
+    # `world` is just some geojson data for d3 to create a world base map.
+    # `dataset` contains a population timeseries for major world cities.
+    initialize: ->
+      # The top view for now stays the same, independently from the routing.
       top = new Top()
       top.render()
+      # data initialization. 
+      dataset = new Miso.Dataset(
+        options: @options
+        url: "static/data/urban_agglomerations_1950_2010.geojson"
+        parser : GeoJsonParser
+      )
+      world = $.ajax "static/data/world-110m.json"
+      @deferred = _.when(dataset.fetch(), world)
+      @deferred.done =>
+        console.log "onDataLoad", @, arguments
+        # Lets tell the world the data is here!
+        @trigger 'onDataLoad', arguments
+  
+    world: ->
+      @deferred.done =>
+        world_map = new WorldMap()
+        world_map.render(arguments)
+        footer_viz = new FooterViz()
+        footer_viz.render()
 
-      #onSuccess = ->
-
-      data = @initData()
-      #@fetchData(data, )
-
-      data.fetch
-        success: ->
-          console.log 'index:data.fetch:success', @
-          world_map = new WorldMap()
-          world_map.render()
-          footer_viz = new FooterViz()
-          footer_viz.render()
-
-
-        error: ->
-          #COS.app.views.title.update "Failed to load data from " + data.url
-          console.log 'boooooooooooooooooooooooooooo'
+    country: (code) ->
+      @deferred.done =>
+        console.log 'country:', code
   
     
   )

@@ -25,7 +25,11 @@ define(['miso'], function(Miso) {
           _results = [];
           for (_j = 0, _len1 = columns.length; _j < _len1; _j++) {
             column = columns[_j];
-            _results.push(dataColumns[column].push(c.properties[column]));
+            if (column === 'geometry') {
+              _results.push(dataColumns[column].push(c.geometry));
+            } else {
+              _results.push(dataColumns[column].push(c.properties[column]));
+            }
           }
           return _results;
         });

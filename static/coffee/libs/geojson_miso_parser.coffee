@@ -22,7 +22,11 @@ define [
     
         _.each features, (c) ->
           for column in columns
-            dataColumns[column].push c.properties[column]
+            if column is 'geometry'
+              dataColumns[column].push c.geometry
+            else
+              dataColumns[column].push c.properties[column]
+          #console.log dataColumns.geometry#.push c.geometry
 
         columns: columns
         data: dataColumns
