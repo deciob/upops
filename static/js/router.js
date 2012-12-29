@@ -24,7 +24,6 @@ define(['backbone', 'libs/geojson_miso_parser', 'views/world_map', 'views/countr
       world = $.ajax("static/data/world-110m.json");
       this.deferred = _.when(dataset.fetch(), world);
       return this.deferred.done(function() {
-        console.log("onDataLoad", _this, arguments);
         return _this.trigger('onDataLoad', arguments);
       });
     },
@@ -35,7 +34,7 @@ define(['backbone', 'libs/geojson_miso_parser', 'views/world_map', 'views/countr
         world_map = new WorldMap();
         world_map.render(arguments);
         footer_viz = new FooterViz();
-        return footer_viz.render();
+        return footer_viz.render(arguments[0]);
       });
     },
     country: function(code) {

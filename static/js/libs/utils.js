@@ -14,13 +14,18 @@ define(['underscore'], function(_) {
     footer_h = footer.height();
     return {
       height: document_h - header_h - footer_h,
-      width: world_view.width()
+      width: world_view.innerWidth()
     };
   };
-  getScale = function(width) {
+  getScale = function(width, height) {
     var factor;
-    factor = 150 / 960;
-    return width * factor;
+    if (width > height) {
+      factor = 150 / 500;
+      return height * factor;
+    } else {
+      factor = 150 / 960;
+      return width * factor;
+    }
   };
   getTranslation = function(scale) {
     var x_scale, y_scale;

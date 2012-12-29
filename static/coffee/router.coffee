@@ -56,7 +56,7 @@ define [
       world = $.ajax "static/data/world-110m.json"
       @deferred = _.when(dataset.fetch(), world)
       @deferred.done =>
-        console.log "onDataLoad", @, arguments
+        #console.log "onDataLoad", @, arguments
         # Lets tell the world the data is here!
         @trigger 'onDataLoad', arguments
   
@@ -65,7 +65,7 @@ define [
         world_map = new WorldMap()
         world_map.render(arguments)
         footer_viz = new FooterViz()
-        footer_viz.render()
+        footer_viz.render(arguments[0])
 
     country: (code) ->
       @deferred.done =>

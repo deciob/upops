@@ -14,12 +14,15 @@ define [
     height:
       document_h - header_h - footer_h
     width:
-      world_view.width()
+      world_view.innerWidth()
 
-  # TODO:  for now setting on width...
-  getScale = (width) ->
-    factor = 150 / 960
-    width * factor
+  getScale = (width, height) ->
+    if width > height
+      factor = 150 / 500
+      return height * factor
+    else
+      factor = 150 / 960
+      return width * factor
 
   getTranslation = (scale) ->
     x_scale = 480 / 150 * scale

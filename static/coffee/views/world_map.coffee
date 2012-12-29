@@ -20,12 +20,12 @@ define [
       #@setElement $(@el)
   
     render: (args) ->
-      console.log 'xxx', args
+      #console.log 'xxx', args
       #template = _.template template#, {message: @message}
       dimensions = utils.getWorldViewDimensions(@el)
       width = dimensions.width
       height = dimensions.height
-      scale = utils.getScale(width)
+      scale = utils.getScale(width, height) * .9
       trans = utils.getTranslation(scale)
       @projection = d3.geo.robinson()
       @projection.scale(scale)
@@ -38,7 +38,6 @@ define [
       @renderOverlay(svg, path, args[0])
 
     renderBaseMap: (svg, path, world) ->
-      console.log 'kkk', $(@el).height()
       # Copied from: http://bl.ocks.org/3682676
       graticule = d3.geo.graticule()
       svg.append("path")
@@ -77,8 +76,8 @@ define [
           .transition()
           .duration(2000)
           .attr("r", (d) ->
-            circleDimension(row.POP2010)
-            #circleDimension(row.POP1950)
+            #circleDimension(row.POP2010)
+            circleDimension(row.POP1950)
           )
       dataset.each(chart, @)
 

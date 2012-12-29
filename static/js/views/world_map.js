@@ -15,11 +15,10 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
     },
     render: function(args) {
       var dimensions, height, path, scale, svg, trans, width;
-      console.log('xxx', args);
       dimensions = utils.getWorldViewDimensions(this.el);
       width = dimensions.width;
       height = dimensions.height;
-      scale = utils.getScale(width);
+      scale = utils.getScale(width, height) * .9;
       trans = utils.getTranslation(scale);
       this.projection = d3.geo.robinson();
       this.projection.scale(scale);
@@ -31,7 +30,6 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
     },
     renderBaseMap: function(svg, path, world) {
       var graticule;
-      console.log('kkk', $(this.el).height());
       graticule = d3.geo.graticule();
       svg.append("path").datum(graticule.outline).attr("class", "background").attr("d", path);
       svg.append("g").attr("class", "graticule").selectAll("path").data(graticule.lines).enter().append("path").attr("d", path);
@@ -49,7 +47,7 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
         var xy;
         xy = this.projection([row.geometry.coordinates[0], row.geometry.coordinates[1]]);
         return g.append("circle").attr("r", 0).attr("cx", xy[0]).attr("cy", xy[1]).attr("id", row._id).transition().duration(2000).attr("r", function(d) {
-          return circleDimension(row.POP2010);
+          return circleDimension(row.POP1950);
         });
       };
       return dataset.each(chart, this);
