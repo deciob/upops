@@ -38,7 +38,8 @@ define [
         "POP2015", 
         "POP2020", 
         "POP2025", 
-        "Country", 
+        "Country",
+        "iso_a2",
         "Urban_Aggl"]
 
     # For this application we have 2 datasets.
@@ -46,19 +47,20 @@ define [
     # `dataset` contains a population timeseries for major world cities.
     initialize: ->
       @dispatcher = _.clone(Backbone.Events)
-      # The top view for now stays the same, independently from the routing.
-      top = new Top()
-      top.render()
+      
       # data initialization. 
       dataset = new Miso.Dataset(
         options: @options
-        url: "static/data/urban_agglomerations_1950_2010.geojson"
+        url: "static/data/urban_agglomerations.geojson"
         parser : GeoJsonParser
       )
       world = $.ajax "static/data/world-110m.json"
       @deferred = _.when(dataset.fetch(), world)
-      @deferred.done =>
-        #console.log "onDataLoad", @, arguments
+      @deferred.done (ds, wr) =>
+        #console.log "onDataLoad", @, arguments, 'kk', a, b
+        # The top view for now stays the same, independently from the routing.
+        top = new Top({dispatcher: @dispatcher})
+        top.render(ds)
         # Lets tell the world the data is here!
         @trigger 'onDataLoad', arguments
   

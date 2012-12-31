@@ -16,7 +16,7 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
     circleDimension: d3.scale.linear().domain([1000, 38661000]).range([2, 30]),
     render: function(args) {
       var dimensions, height, path, scale, svg, trans, width;
-      dimensions = utils.getWorldViewDimensions(this.el);
+      dimensions = this._getViewDimensions();
       width = dimensions.width;
       height = dimensions.height;
       scale = utils.getScale(width, height);
@@ -66,6 +66,12 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
           return self.circleDimension(pop);
         });
       });
+    },
+    _getViewDimensions: function() {
+      return {
+        height: utils.getMiddleHeight(),
+        width: $(this.el).innerWidth()
+      };
     }
   });
 });

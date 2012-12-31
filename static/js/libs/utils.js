@@ -3,20 +3,15 @@
 define(['underscore'], function(_) {
   'use strict';
 
-  var getScale, getTranslation, getWorldViewDimensions, utils;
-  getWorldViewDimensions = function(el) {
-    var document_h, footer, footer_h, header, header_h, world_view;
-    console.log($(el).innerWidth());
+  var getMiddleHeight, getScale, getTranslation, utils;
+  getMiddleHeight = function() {
+    var document_h, footer, footer_h, header, header_h;
     header = $("#top");
-    footer = $("#footer_viz");
-    world_view = $(el);
+    footer = $("#world_info");
     document_h = $(document).height();
     header_h = header.height();
     footer_h = footer.height();
-    return {
-      height: document_h - header_h - footer_h,
-      width: world_view.innerWidth()
-    };
+    return document_h - header_h - footer_h;
   };
   getScale = function(width, height) {
     var factor, map_proportion, view_proportion;
@@ -40,7 +35,7 @@ define(['underscore'], function(_) {
     };
   };
   return utils = {
-    getWorldViewDimensions: getWorldViewDimensions,
+    getMiddleHeight: getMiddleHeight,
     getScale: getScale,
     getTranslation: getTranslation
   };

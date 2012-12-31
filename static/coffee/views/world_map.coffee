@@ -26,7 +26,7 @@ define [
     render: (args) ->
       #console.log 'xxx', args
       #template = _.template template#, {message: @message}
-      dimensions = utils.getWorldViewDimensions(@el)
+      dimensions = @_getViewDimensions()
       width = dimensions.width
       height = dimensions.height
       scale = utils.getScale(width, height) #* .9
@@ -94,6 +94,12 @@ define [
         .transition()
         .duration(500)
         .attr("r", -> self.circleDimension(pop))
+
+    _getViewDimensions: ->
+      height:
+        utils.getMiddleHeight()
+      width:
+        $(@el).innerWidth()
 
         
   )

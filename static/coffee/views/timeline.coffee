@@ -1,8 +1,9 @@
 define [
   'jquery_ui'
   'backbone'
+  'libs/utils'
   'text!templates/timeline.html'
-], ($, Backbone, template) ->
+], ($, Backbone, utils, template) ->
   'use strict'
 
 
@@ -13,10 +14,12 @@ define [
     initialize: (options) ->
       #@setElement $(@el)
       # margin: top, right, bottom, left
-      @dispatcher = options.dispatcher
       @m = [40, 80, 40, 40]
+      @dispatcher = options.dispatcher
   
     render: (args) ->
+      @dimensions = @_getViewDimensions()
+      $(@el).height(@dimensions.height * .8)
       template = _.template template
       @$el.html template
       @renderTimeseries(args)
@@ -25,7 +28,7 @@ define [
     renderSlider: ->
       self = @
       $("#slider")
-      .width(@$el.width() - @m[1] - @m[3])
+      .width(@dimensions.width - @m[1] - @m[3])
       .css("left", @m[3])
       .slider
         value: 100
@@ -118,6 +121,13 @@ define [
         #  count = 1
 
       dataset.each(chart, @)
+
+
+    _getViewDimensions: ->
+      height:
+        utils.getMiddleHeight()
+      width:
+        $(@el).innerWidth()
 
       #d3.csv "readme.csv", (data) ->
       #  

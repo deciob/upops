@@ -3,19 +3,14 @@ define [
 ], (_) ->
   'use strict'
 
-  # TODO: for now parked here...
-  getWorldViewDimensions = (el) ->
-    console.log $(el).innerWidth()
+  getMiddleHeight = -> 
+    # TODO: pass these ids from some config
     header = $("#top")
-    footer = $("#footer_viz")
-    world_view = $(el)
+    footer = $("#world_info")
     document_h = $(document).height()
     header_h = header.height()
     footer_h = footer.height()
-    height:
-      document_h - header_h - footer_h
-    width:
-      world_view.innerWidth()
+    document_h - header_h - footer_h
 
   getScale = (width, height) ->
     map_proportion = 500 / 960
@@ -36,7 +31,7 @@ define [
       y_scale
 
   utils = 
-    getWorldViewDimensions: getWorldViewDimensions
+    getMiddleHeight: getMiddleHeight
     getScale: getScale
     getTranslation: getTranslation
 

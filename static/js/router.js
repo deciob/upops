@@ -9,22 +9,25 @@ define(['backbone', 'libs/geojson_miso_parser', 'views/world_map', 'views/world_
       "country/:code/": "country"
     },
     options: {
-      columns: ["geometry", "POP1950", "POP1955", "POP1960", "POP1965", "POP1970", "POP1975", "POP1980", "POP1985", "POP1990", "POP1995", "POP2000", "POP2005", "POP2010", "POP2015", "POP2020", "POP2025", "Country", "Urban_Aggl"]
+      columns: ["geometry", "POP1950", "POP1955", "POP1960", "POP1965", "POP1970", "POP1975", "POP1980", "POP1985", "POP1990", "POP1995", "POP2000", "POP2005", "POP2010", "POP2015", "POP2020", "POP2025", "Country", "iso_a2", "Urban_Aggl"]
     },
     initialize: function() {
-      var dataset, top, world,
+      var dataset, world,
         _this = this;
       this.dispatcher = _.clone(Backbone.Events);
-      top = new Top();
-      top.render();
       dataset = new Miso.Dataset({
         options: this.options,
-        url: "static/data/urban_agglomerations_1950_2010.geojson",
+        url: "static/data/urban_agglomerations.geojson",
         parser: GeoJsonParser
       });
       world = $.ajax("static/data/world-110m.json");
       this.deferred = _.when(dataset.fetch(), world);
-      return this.deferred.done(function() {
+      return this.deferred.done(function(ds, wr) {
+        var top;
+        top = new Top({
+          dispatcher: _this.dispatcher
+        });
+        top.render(ds);
         return _this.trigger('onDataLoad', arguments);
       });
     },
