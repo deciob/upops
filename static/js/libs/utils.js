@@ -6,6 +6,7 @@ define(['underscore'], function(_) {
   var getScale, getTranslation, getWorldViewDimensions, utils;
   getWorldViewDimensions = function(el) {
     var document_h, footer, footer_h, header, header_h, world_view;
+    console.log($(el).innerWidth());
     header = $("#top");
     footer = $("#footer_viz");
     world_view = $(el);
@@ -18,13 +19,15 @@ define(['underscore'], function(_) {
     };
   };
   getScale = function(width, height) {
-    var factor;
-    if (width > height) {
-      factor = 150 / 500;
-      return height * factor;
-    } else {
+    var factor, map_proportion, view_proportion;
+    map_proportion = 500 / 960;
+    view_proportion = height / width;
+    if (view_proportion > map_proportion) {
       factor = 150 / 960;
       return width * factor;
+    } else {
+      factor = 150 / 500;
+      return height * factor;
     }
   };
   getTranslation = function(scale) {

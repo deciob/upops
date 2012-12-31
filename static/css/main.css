@@ -13,22 +13,22 @@ body {
   height: auto !important;
   height: 100%;
   /* Negative indent footer by it's height */
-  margin: 0 auto -330px;
+  margin: 0 auto -350px;
 }
 
 /* Set the fixed height of the footer here */
 #push,
-#footer_viz {
-  height: 330px;
+#timeline {
+  height: 350px;
 }
-/*#footer_viz,*/
+/*#timeline,*/
 #top {
   background-color: #f5f5f5;
 }
 
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 767px) {
-  #footer_viz {
+  #timeline {
     margin-left: -20px;
     margin-right: -20px;
     padding-left: 20px;
@@ -42,13 +42,7 @@ body {
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
-.container {
-  width: auto;
-  max-width: 680px;
-}
-.container .credit {
-  margin: 20px 0;
-}
+
 
 
 /* d3 stuff
@@ -123,5 +117,9 @@ path.line {
 -------------------------------------------------- */
 #top {
   height: 40px;
+}
+
+#slider {
+  margin-bottom: 10px;
 }
 

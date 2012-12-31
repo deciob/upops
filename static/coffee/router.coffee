@@ -2,11 +2,12 @@ define [
   'backbone'
   'libs/geojson_miso_parser'
   'views/world_map'
+  'views/world_info'
   'views/country_map'
   'views/country_info'
   'views/top'
-  'views/footer_viz'
-], (Backbone, GeoJsonParser, WorldMap, CountryMap, CountryViz, Top, FooterViz) ->
+  'views/timeline'
+], (Backbone, GeoJsonParser, WorldMap, WorldInfo, CountryMap, CountryViz, Top, Timeline) ->
   'use strict'
 
 
@@ -44,6 +45,7 @@ define [
     # `world` is just some geojson data for d3 to create a world base map.
     # `dataset` contains a population timeseries for major world cities.
     initialize: ->
+      @dispatcher = _.clone(Backbone.Events)
       # The top view for now stays the same, independently from the routing.
       top = new Top()
       top.render()
@@ -62,10 +64,12 @@ define [
   
     world: ->
       @deferred.done =>
-        world_map = new WorldMap()
+        world_map = new WorldMap({dispatcher: @dispatcher})
         world_map.render(arguments)
-        footer_viz = new FooterViz()
-        footer_viz.render(arguments[0])
+        world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
+        world_info.render()
+        timeline = new Timeline({dispatcher: @dispatcher})
+        timeline.render(arguments[0])
 
     country: (code) ->
       @deferred.done =>

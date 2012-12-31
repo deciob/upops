@@ -8,17 +8,18 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
     el: "#world_map",
     initialize: function(options) {
       this.options = options || {};
-      this.options.width = 1200;
-      this.options.height = 800;
+      this.dispatcher = options.dispatcher;
       this.defaultMessage = "World Map (main visualisation)";
-      return this.message = this.options.message || this.defaultMessage;
+      this.message = this.options.message || this.defaultMessage;
+      return this.dispatcher.on('onSlide', this.updateChart, this);
     },
+    circleDimension: d3.scale.linear().domain([1000, 38661000]).range([2, 30]),
     render: function(args) {
       var dimensions, height, path, scale, svg, trans, width;
       dimensions = utils.getWorldViewDimensions(this.el);
       width = dimensions.width;
       height = dimensions.height;
-      scale = utils.getScale(width, height) * .9;
+      scale = utils.getScale(width, height);
       trans = utils.getTranslation(scale);
       this.projection = d3.geo.robinson();
       this.projection.scale(scale);
@@ -26,7 +27,8 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
       path = d3.geo.path().projection(this.projection);
       svg = d3.select(this.el).append("svg").attr("width", width).attr("height", height);
       this.renderBaseMap(svg, path, args[1][0]);
-      return this.renderOverlay(svg, path, args[0]);
+      this.renderOverlay(svg, path, args[0]);
+      return this.dataset = args[0];
     },
     renderBaseMap: function(svg, path, world) {
       var graticule;
@@ -40,17 +42,30 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
       })).attr("class", "boundary").attr("d", path);
     },
     renderOverlay: function(svg, path, dataset) {
-      var chart, circleDimension, g;
+      var chart, g, self;
+      self = this;
       g = svg.append("g");
-      circleDimension = d3.scale.linear().domain([100000, 20000000]).range([2, 20]);
       chart = function(row) {
         var xy;
         xy = this.projection([row.geometry.coordinates[0], row.geometry.coordinates[1]]);
-        return g.append("circle").attr("r", 0).attr("cx", xy[0]).attr("cy", xy[1]).attr("id", row._id).transition().duration(2000).attr("r", function(d) {
-          return circleDimension(row.POP1950);
+        return g.append("circle").attr("r", 0).attr("cx", xy[0]).attr("cy", xy[1]).attr("id", "c_" + row._id).transition().duration(2000).attr("r", function(d) {
+          return self.circleDimension(row.POP1950);
         });
       };
       return dataset.each(chart, this);
+    },
+    updateChart: function(year) {
+      var self;
+      self = this;
+      return d3.select(this.el).selectAll("circle").datum(function() {
+        var id, pop, selection;
+        selection = d3.select(this);
+        id = selection.attr('id').substring(2);
+        pop = self.dataset.rowById(id)["POP" + year];
+        return d3.select(this).transition().duration(500).attr("r", function() {
+          return self.circleDimension(pop);
+        });
+      });
     }
   });
 });

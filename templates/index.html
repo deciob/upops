@@ -6,6 +6,7 @@
     <meta name="description" content="Urban population prospects">
     <meta name="author" content="deciob">
     <link rel="stylesheet" href="static/css/vendor/bootstrap.min.css" media="screen" />
+    <link rel="stylesheet" href="static/css/vendor/jquery-ui-1.9.2.custom.min.css" media="screen" />
     <link rel="stylesheet" href="static/css/vendor/bootstrap-responsive.min.css" media="screen" />
     <link rel="stylesheet" href="static/css/main.css" media="screen" />
     <!--<link rel="stylesheet" href="static/css/reset.css">-->
@@ -28,6 +29,7 @@
             // Specify the paths of vendor libraries
             paths: {
                 jquery: 'vendor/jquery-1.8.3.min',
+                jquery_ui: 'vendor/jquery-ui-1.9.2.custom',
                 bootstrap: 'vendor/bootstrap',
                 underscore: 'vendor/miso-0.4.0/lib/lodash',
                 deferred: 'vendor/miso-0.4.0/lib/underscore.deferred',
@@ -41,6 +43,10 @@
             // Underscore and asevented do not AMD-capable per default,
             // so we need to use the AMD wrapping of RequireJS
             shim: {
+                jquery_ui: {
+                    deps: ['jquery'],
+                    exports: 'jQuery'
+                },
                 bootstrap: {
                     exports: 'bootstrap'
                 },
@@ -90,8 +96,10 @@
 
     <div id="wrap">
         <header id="top" class="row"></header>
-    
-        <article id="world_map" class="row"></article>
+        <div class="row-fluid">
+            <article id="world_map" class="span7"></article>
+            <section class="span5" id="timeline"></section>
+        </div>
     
         <div class="row">
             <article id="country_map" class="span8" style="display: none;">
@@ -101,7 +109,8 @@
         </div>
     </div>
 
-    <section id="footer_viz"></section>
+    
+    <article id="world_info"></article>
 
 </body>
 </html>

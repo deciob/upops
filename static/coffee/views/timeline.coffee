@@ -1,29 +1,45 @@
 define [
+  'jquery_ui'
   'backbone'
-  'text!templates/footer_viz.html'
-], (Backbone, template) ->
+  'text!templates/timeline.html'
+], ($, Backbone, template) ->
   'use strict'
 
 
-  FooterViz = Backbone.View.extend(
+  Timeline = Backbone.View.extend(
 
-    el: "#footer_viz"
+    el: "#timeline"
 
-    #initialize: (options) ->
-    #  @setElement $(@el)
+    initialize: (options) ->
+      #@setElement $(@el)
+      # margin: top, right, bottom, left
+      @dispatcher = options.dispatcher
+      @m = [40, 80, 40, 40]
   
     render: (args) ->
       template = _.template template
       @$el.html template
       @renderTimeseries(args)
+      @renderSlider()
 
-
+    renderSlider: ->
+      self = @
+      $("#slider")
+      .width(@$el.width() - @m[1] - @m[3])
+      .css("left", @m[3])
+      .slider
+        value: 100
+        min: 1950
+        max: 2025
+        step: 5
+        slide: (event, ui) ->
+          self.dispatcher.trigger 'onSlide', ui.value
 
     renderTimeseries: (dataset) ->
       # Copied from: http://bl.ocks.org/1166403
       buffer_zone = 30
-      # margin: top, right, bottom, left
-      m = [40, 80, 30, 40]
+      
+      m = @m
       w = @$el.width() - m[1] - m[3]
       h = @$el.height() - m[0] - m[2]
       parse = d3.time.format("%Y").parse
@@ -55,7 +71,8 @@ define [
       # Add an SVG element with the desired dimensions and margin.
       svg = d3.select(el).append("svg:svg")
       .attr("width", w + m[1] + m[3])
-      .attr("height", h + m[0] + m[2] - 35)
+      #TODO: 55 is to account for everything else in the footer
+      .attr("height", h + m[0] + m[2] - 60)  
         .append("svg:g")
       .attr("transform", "translate(" + m[3] + ",0)")
       

@@ -5,6 +5,7 @@ define [
 
   # TODO: for now parked here...
   getWorldViewDimensions = (el) ->
+    console.log $(el).innerWidth()
     header = $("#top")
     footer = $("#footer_viz")
     world_view = $(el)
@@ -17,12 +18,14 @@ define [
       world_view.innerWidth()
 
   getScale = (width, height) ->
-    if width > height
-      factor = 150 / 500
-      return height * factor
-    else
+    map_proportion = 500 / 960
+    view_proportion = height / width
+    if view_proportion > map_proportion
       factor = 150 / 960
       return width * factor
+    else
+      factor = 150 / 500
+      return height * factor
 
   getTranslation = (scale) ->
     x_scale = 480 / 150 * scale

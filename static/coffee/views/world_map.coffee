@@ -12,20 +12,24 @@ define [
 
     initialize: (options) ->
       @options = options or {}
-      @options.width = 1200
-      @options.height = 800
-      #console.log 'kkkkk', utils.getWorldViewDimensions(@el)
+      @dispatcher = options.dispatcher
+      #@options.width = 1200
+      #@options.height = 800
       @defaultMessage = "World Map (main visualisation)"
       @message = @options.message or @defaultMessage
-      #@setElement $(@el)
+      @dispatcher.on 'onSlide', @updateChart, @
   
+    circleDimension: d3.scale.linear()
+      .domain([1000, 38661000])
+      .range([2, 30])
+
     render: (args) ->
       #console.log 'xxx', args
       #template = _.template template#, {message: @message}
       dimensions = utils.getWorldViewDimensions(@el)
       width = dimensions.width
       height = dimensions.height
-      scale = utils.getScale(width, height) * .9
+      scale = utils.getScale(width, height) #* .9
       trans = utils.getTranslation(scale)
       @projection = d3.geo.robinson()
       @projection.scale(scale)
@@ -36,6 +40,7 @@ define [
       #@$el.html template
       @renderBaseMap(svg, path, args[1][0])
       @renderOverlay(svg, path, args[0])
+      @dataset = args[0]
 
     renderBaseMap: (svg, path, world) ->
       # Copied from: http://bl.ocks.org/3682676
@@ -58,10 +63,8 @@ define [
       )).attr("class", "boundary").attr "d", path
 
     renderOverlay: (svg, path, dataset) ->
+      self = @
       g = svg.append("g")
-      circleDimension = d3.scale.linear()
-        .domain([100000, 20000000])
-        .range([2, 20])
       chart = (row) ->
         #console.log row
         xy = @projection([
@@ -71,15 +74,26 @@ define [
           .attr("r", 0)
           .attr("cx", xy[0])
           .attr("cy", xy[1])
-          .attr("id", row._id)
+          .attr("id", "c_#{row._id}") # namespacing the id
           #.on('click', self.overIncident)
           .transition()
           .duration(2000)
           .attr("r", (d) ->
             #circleDimension(row.POP2010)
-            circleDimension(row.POP1950)
+            self.circleDimension(row.POP1950)
           )
       dataset.each(chart, @)
+
+    updateChart: (year) ->
+      self = @
+      d3.select(@el).selectAll("circle").datum ->
+        selection = d3.select(@)
+        id = selection.attr('id').substring(2)
+        pop = self.dataset.rowById(id)["POP#{year}"]
+        d3.select(@)
+        .transition()
+        .duration(500)
+        .attr("r", -> self.circleDimension(pop))
 
         
   )
