@@ -26,7 +26,7 @@ define(['backbone', 'libs/utils', 'text!templates/world_map.html'], function(Bac
       this.projection.translate([trans.x, trans.y]);
       path = d3.geo.path().projection(this.projection);
       svg = d3.select(this.el).append("svg").attr("width", width).attr("height", height);
-      this.renderBaseMap(svg, path, JSON.parse(args[1][0]));
+      this.renderBaseMap(svg, path, args[1][0]);
       this.renderOverlay(svg, path, args[0]);
       return this.dataset = args[0];
     },

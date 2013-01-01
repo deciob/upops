@@ -39,8 +39,8 @@ define [
       svg = d3.select(@el)
         .append("svg").attr("width", width).attr("height", height)
       #@$el.html template
-      #@renderBaseMap(svg, path, args[1][0])
-      @renderBaseMap(svg, path, JSON.parse(args[1][0])) #TODO: why???? JSON.parse???
+      @renderBaseMap(svg, path, args[1][0])
+      #@renderBaseMap(svg, path, JSON.parse(args[1][0])) #TODO: why???? JSON.parse???
       @renderOverlay(svg, path, args[0])
       @dataset = args[0]
 
