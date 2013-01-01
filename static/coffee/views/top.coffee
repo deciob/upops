@@ -32,7 +32,6 @@ define [
       countries = []
       ds.each (row) -> 
         countries.push {label: row.Country, value: row.iso_a2}
-      _.uniq countries
-
+      _.uniq countries, false, (el) -> el.value
   
   )

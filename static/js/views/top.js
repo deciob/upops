@@ -35,7 +35,9 @@ define(['jquery_ui', 'backbone', 'text!templates/top.html'], function($, Backbon
           value: row.iso_a2
         });
       });
-      return _.uniq(countries);
+      return _.uniq(countries, false, function(el) {
+        return el.value;
+      });
     }
   });
 });

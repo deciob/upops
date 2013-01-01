@@ -1,5 +1,6 @@
 define [
   'backbone'
+  'libs/view_manager'
   'libs/geojson_miso_parser'
   'views/world_map'
   'views/world_info'
@@ -7,7 +8,7 @@ define [
   'views/country_info'
   'views/top'
   'views/timeline'
-], (Backbone, GeoJsonParser, WorldMap, WorldInfo, CountryMap, CountryViz, Top, Timeline) ->
+], (Backbone, ViewManager, GeoJsonParser, WorldMap, WorldInfo, CountryMap, CountryViz, Top, Timeline) ->
   'use strict'
 
 
@@ -47,6 +48,10 @@ define [
     # `dataset` contains a population timeseries for major world cities.
     initialize: ->
       @dispatcher = _.clone(Backbone.Events)
+      options = {dispatcher: @dispatcher}
+      @world_map = new WorldMap({dispatcher: @dispatcher})
+      @country_map = new CountryMap({dispatcher: @dispatcher})
+      mapViewManager = new Backbone.ViewManager(options, @world_map, @country_map)
       
       # data initialization. 
       dataset = new Miso.Dataset(
@@ -66,8 +71,9 @@ define [
   
     world: ->
       @deferred.done =>
-        world_map = new WorldMap({dispatcher: @dispatcher})
-        world_map.render(arguments)
+        #world_map = new WorldMap({dispatcher: @dispatcher})
+        #@world_map.render(arguments)
+        @world_map.trigger 'activate', @world_map, arguments
         world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
         world_info.render()
         timeline = new Timeline({dispatcher: @dispatcher})
