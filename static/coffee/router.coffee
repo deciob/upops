@@ -51,7 +51,7 @@ define [
       options = {dispatcher: @dispatcher}
       @world_map = new WorldMap({dispatcher: @dispatcher})
       @country_map = new CountryMap({dispatcher: @dispatcher})
-      mapViewManager = new Backbone.ViewManager(options, @world_map, @country_map)
+      @mapViewManager = new Backbone.ViewManager(options, @world_map, @country_map)
       
       # data initialization. 
       dataset = new Miso.Dataset(
@@ -66,22 +66,28 @@ define [
         # The top view for now stays the same, independently from the routing.
         top = new Top({dispatcher: @dispatcher})
         top.render(ds)
+        timeline = new Timeline({dispatcher: @dispatcher})
+        timeline.render(arguments[0])
+        world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
+        world_info.render()
         # Lets tell the world the data is here!
         @trigger 'onDataLoad', arguments
   
     world: ->
       @deferred.done =>
+        #console.log 'world:'
         #world_map = new WorldMap({dispatcher: @dispatcher})
         #@world_map.render(arguments)
         @world_map.trigger 'activate', @world_map, arguments
-        world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
-        world_info.render()
-        timeline = new Timeline({dispatcher: @dispatcher})
-        timeline.render(arguments[0])
+        #@mapViewManager.activate @world_map, arguments
+        #world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
+        #world_info.render()
 
     country: (code) ->
       @deferred.done =>
-        console.log 'country:', code
+        #console.log 'country:', code
+        @country_map .trigger 'activate', @country_map, code#arguments
+        #@mapViewManager.activate @country_map, arguments
   
     
   )

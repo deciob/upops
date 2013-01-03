@@ -12,7 +12,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
       columns: ["geometry", "POP1950", "POP1955", "POP1960", "POP1965", "POP1970", "POP1975", "POP1980", "POP1985", "POP1990", "POP1995", "POP2000", "POP2005", "POP2010", "POP2015", "POP2020", "POP2025", "Country", "iso_a2", "Urban_Aggl"]
     },
     initialize: function() {
-      var dataset, mapViewManager, options, world,
+      var dataset, options, world,
         _this = this;
       this.dispatcher = _.clone(Backbone.Events);
       options = {
@@ -24,7 +24,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
       this.country_map = new CountryMap({
         dispatcher: this.dispatcher
       });
-      mapViewManager = new Backbone.ViewManager(options, this.world_map, this.country_map);
+      this.mapViewManager = new Backbone.ViewManager(options, this.world_map, this.country_map);
       dataset = new Miso.Dataset({
         options: this.options,
         url: "static/data/urban_agglomerations.geojson",
@@ -33,34 +33,33 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
       world = $.ajax("static/data/world-110m.json");
       this.deferred = _.when(dataset.fetch(), world);
       return this.deferred.done(function(ds, wr) {
-        var top;
+        var timeline, top, world_info;
         top = new Top({
           dispatcher: _this.dispatcher
         });
         top.render(ds);
+        timeline = new Timeline({
+          dispatcher: _this.dispatcher
+        });
+        timeline.render(arguments[0]);
+        world_info = new WorldInfo({
+          dispatcher: _this.dispatcher,
+          default_year: 1950
+        });
+        world_info.render();
         return _this.trigger('onDataLoad', arguments);
       });
     },
     world: function() {
       var _this = this;
       return this.deferred.done(function() {
-        var timeline, world_info;
-        _this.world_map.trigger('activate', _this.world_map, arguments);
-        world_info = new WorldInfo({
-          dispatcher: _this.dispatcher,
-          default_year: 1950
-        });
-        world_info.render();
-        timeline = new Timeline({
-          dispatcher: _this.dispatcher
-        });
-        return timeline.render(arguments[0]);
+        return _this.world_map.trigger('activate', _this.world_map, arguments);
       });
     },
     country: function(code) {
       var _this = this;
       return this.deferred.done(function() {
-        return console.log('country:', code);
+        return _this.country_map.trigger('activate', _this.country_map, code);
       });
     }
   });

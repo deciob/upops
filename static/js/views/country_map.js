@@ -7,11 +7,11 @@ define(['backbone', 'text!templates/country_map.html'], function(Backbone, templ
   return CountryMap = Backbone.View.extend({
     el: "#country_map",
     initialize: function(options) {
-      return this.setElement($(this.el));
+      this.setElement($(this.el));
+      return this.template = _.template(template);
     },
-    render: function() {
-      template = _.template(template);
-      return this.$el.html(template);
+    render: function(code) {
+      return this.$el.html(this.template);
     }
   });
 });

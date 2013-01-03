@@ -22,7 +22,9 @@ define(['jquery_ui', 'backbone', 'text!templates/top.html'], function($, Backbon
       return $("#country_tags").autocomplete({
         source: countries,
         select: function(evt, ui) {
-          return self.dispatcher.trigger('onCountrySelect', ui.item.value);
+          return Backbone.history.navigate("country/" + ui.item.value + "/", {
+            trigger: true
+          });
         }
       });
     },

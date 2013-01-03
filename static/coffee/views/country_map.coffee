@@ -11,9 +11,11 @@ define [
 
     initialize: (options) ->
       @setElement $(@el)
+      @template = _.template template
   
-    render: ->
-      template = _.template template
-      @$el.html template
+    render: (code) ->
+      #console.log 'CountryMap', @$el, args
+      #template = _.template template
+      @$el.html @template
   
   )

@@ -25,7 +25,7 @@ define [
       .range([2, 30])
 
     render: (args) ->
-      #console.log 'xxx', args
+      #console.log 'xxx, flute',  args
       #template = _.template template#, {message: @message}
       dimensions = @_getViewDimensions()
       width = dimensions.width

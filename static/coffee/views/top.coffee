@@ -25,7 +25,8 @@ define [
       $( "#country_tags" ).autocomplete({
         source: countries
         select: (evt, ui) ->
-          self.dispatcher.trigger 'onCountrySelect', ui.item.value
+          #self.dispatcher.trigger 'onCountrySelect', ui.item.value
+          Backbone.history.navigate("country/#{ui.item.value}/", {trigger: true})
       })
 
     getCountryList: (ds) ->

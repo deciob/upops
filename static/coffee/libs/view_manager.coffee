@@ -7,7 +7,7 @@ define [
   class Backbone.ViewManager
 
     
-    #_.extend(@::, Backbone.Events)
+    _.extend(@::, Backbone.Events)
     
     constructor: (options, args...) ->
       #console.log 'sss', options, args
@@ -27,13 +27,23 @@ define [
       @views.push(view)
 
     activate: (view, args) =>
-      #console.log 'zoom', view, args, 'c'
-      if view == @activeView
-        @close view
-      #$(view.el).removeClass 'inactive'
+      #console.log 'zoom', view, @activeView
+      if @activeView
+        @close @activeView
+      #$(view.el).removeClass 'inactive' 
       $(view.el).show()
       view.render args
       @activeView = view
+
+    close: (view) ->
+      #console.log view, 'sssoooiiiii'
+      #_each(view)
+      #@unbindFromAll()
+      #@unbind()
+      $(view.el).html('')
+      #view.remove()
+      $(view.el).hide()
+      #@onClose() 
 
 
 
