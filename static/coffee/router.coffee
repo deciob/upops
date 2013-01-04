@@ -77,17 +77,17 @@ define [
       @deferred.done =>
         #console.log 'world:'
         #world_map = new WorldMap({dispatcher: @dispatcher})
-        #@world_map.render(arguments)
-        @world_map.trigger 'activate', @world_map, arguments
-        #@mapViewManager.activate @world_map, arguments
+        #@world_map.render arguments
+        #@world_map.trigger 'activate', @world_map, arguments
+        @mapViewManager.activate @world_map, arguments
         #world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
         #world_info.render()
 
     country: (code) ->
       @deferred.done =>
         #console.log 'country:', code
-        @country_map .trigger 'activate', @country_map, code#arguments
-        #@mapViewManager.activate @country_map, arguments
+        #@country_map .trigger 'activate', @country_map, code#arguments
+        @mapViewManager.activate @country_map, arguments
   
     
   )

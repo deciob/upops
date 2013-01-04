@@ -53,13 +53,13 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
     world: function() {
       var _this = this;
       return this.deferred.done(function() {
-        return _this.world_map.trigger('activate', _this.world_map, arguments);
+        return _this.mapViewManager.activate(_this.world_map, arguments);
       });
     },
     country: function(code) {
       var _this = this;
       return this.deferred.done(function() {
-        return _this.country_map.trigger('activate', _this.country_map, code);
+        return _this.mapViewManager.activate(_this.country_map, arguments);
       });
     }
   });

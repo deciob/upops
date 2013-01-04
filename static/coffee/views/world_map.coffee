@@ -1,12 +1,13 @@
 define [
   'backbone'
   'libs/utils'
+  'views/base'
   'text!templates/world_map.html'
-], (Backbone, utils, template) ->
+], (Backbone, utils, Base, template) ->
   'use strict'
 
 
-  WorldMap = Backbone.View.extend(
+  WorldMap = Base.extend
 
     el: "#world_map"
 
@@ -102,6 +103,3 @@ define [
         utils.getMiddleHeight()
       width:
         $(@el).innerWidth()
-
-        
-  )

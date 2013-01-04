@@ -1,11 +1,12 @@
 define [
   'backbone'
+  'views/base'
   'text!templates/country_map.html'
-], (Backbone, template) ->
+], (Backbone, Base, template) ->
   'use strict'
 
 
-  CountryMap = Backbone.View.extend(
+  CountryMap = Base.extend
 
     el: "#country_map"
 
@@ -14,8 +15,8 @@ define [
       @template = _.template template
   
     render: (code) ->
-      #console.log 'CountryMap', @$el, args
+      #console.log 'CountryMap', @$el, $(@el), code
       #template = _.template template
-      @$el.html @template
+      $(@el).html @template
   
-  )
+  

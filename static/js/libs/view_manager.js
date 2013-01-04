@@ -6,8 +6,6 @@ define(['backbone'], function(Backbone) {
   'use strict';
   return Backbone.ViewManager = (function() {
 
-    _.extend(ViewManager.prototype, Backbone.Events);
-
     function ViewManager() {
       var args, options;
       options = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -29,23 +27,17 @@ define(['backbone'], function(Backbone) {
     };
 
     ViewManager.prototype.addOne = function(view) {
-      view.on('activate', this.activate);
       $(view.el).hide();
       return this.views.push(view);
     };
 
     ViewManager.prototype.activate = function(view, args) {
       if (this.activeView) {
-        this.close(this.activeView);
+        this.activeView.dispose();
       }
       $(view.el).show();
       view.render(args);
       return this.activeView = view;
-    };
-
-    ViewManager.prototype.close = function(view) {
-      $(view.el).html('');
-      return $(view.el).hide();
     };
 
     return ViewManager;
