@@ -23,6 +23,7 @@ define [
       return height * factor
 
   getTranslation = (scale) ->
+    console.log "utils:getTranslation", scale
     x_scale = 480 / 150 * scale
     y_scale = 250 / 150 * scale
     x:

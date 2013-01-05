@@ -47,18 +47,18 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
           default_year: 1950
         });
         world_info.render();
-        return _this.trigger('onDataLoad', arguments);
+        return _this.trigger('onDataLoad', ds, wr);
       });
     },
     world: function() {
       var _this = this;
-      return this.deferred.done(function() {
-        return _this.mapViewManager.activate(_this.world_map, arguments);
+      return this.deferred.done(function(ds, wr) {
+        return _this.mapViewManager.activate(_this.world_map, [ds, wr]);
       });
     },
     country: function(code) {
       var _this = this;
-      return this.deferred.done(function() {
+      return this.deferred.done(function(ds, wr) {
         return _this.mapViewManager.activate(_this.country_map, arguments);
       });
     }

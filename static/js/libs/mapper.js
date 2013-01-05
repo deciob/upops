@@ -2,18 +2,106 @@
 
 define(['underscore'], function(_) {
   'use strict';
-  return mapper(function(conf) {
-    var c, defaults;
+
+  var mapper;
+  return mapper = function(conf) {
+    var c, circleDimension, defaults, getScale, getTranslation, m, renderBaseMap, renderOverlay;
     defaults = {
       width: 960,
       height: 500,
       projection: d3.geo.robinson()
     };
     c = _.extend(defaults, conf);
-    m(function() {
-      var path;
-      return path = d3.geo.path().projection(projection);
-    });
+    circleDimension = d3.scale.linear().domain([1000, 38661000]).range([2, 30]);
+    getScale = function(width, height) {
+      var factor, map_proportion, view_proportion;
+      map_proportion = 500 / 960;
+      view_proportion = height / width;
+      if (view_proportion > map_proportion) {
+        factor = 150 / 960;
+        return width * factor;
+      } else {
+        factor = 150 / 500;
+        return height * factor;
+      }
+    };
+    getTranslation = function(scale) {
+      var x_scale, y_scale;
+      x_scale = 480 / 150 * scale;
+      y_scale = 250 / 150 * scale;
+      return {
+        x: x_scale,
+        y: y_scale
+      };
+    };
+    renderBaseMap = function(svg, path) {
+      var base, graticule;
+      if (!c.data.base) {
+        return;
+      }
+      base = c.data.base;
+      graticule = d3.geo.graticule();
+      svg.append("path").datum(graticule.outline).attr("class", "background").attr("d", path);
+      svg.append("g").attr("class", "graticule").selectAll("path").data(graticule.lines).enter().append("path").attr("d", path);
+      svg.append("path").datum(graticule.outline).attr("class", "foreground").attr("d", path);
+      svg.insert("path", ".graticule").datum(topojson.object(base, base.objects.land)).attr("class", "land").attr("d", path);
+      return svg.insert("path", ".graticule").datum(topojson.mesh(base, base.objects.countries, function(a, b) {
+        return a.id !== b.id;
+      })).attr("class", "boundary").attr("d", path);
+    };
+    renderOverlay = function(svg, path) {
+      var chart, dataset, g;
+      if (!c.data.overlay) {
+        return;
+      }
+      dataset = c.data.overlay;
+      g = svg.append("g");
+      chart = function(row) {
+        var xy;
+        xy = c.projection([row.geometry.coordinates[0], row.geometry.coordinates[1]]);
+        return g.append("circle").attr("r", 0).attr("cx", xy[0]).attr("cy", xy[1]).attr("id", "c_" + row._id).transition().duration(2000).attr("r", function(d) {
+          return circleDimension(row.POP1950);
+        });
+      };
+      return dataset.each(chart, this);
+    };
+    m = function() {
+      var path, scale, svg, trans;
+      svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
+      scale = getScale(c.width, c.height);
+      trans = getTranslation(scale);
+      c.projection.scale(scale);
+      c.projection.translate([trans.x, trans.y]);
+      path = d3.geo.path().projection(c.projection);
+      renderBaseMap(svg, path);
+      return renderOverlay(svg, path);
+    };
+    m.updateOverlay = function(year) {
+      d3.select(c.el).selectAll("circle").datum(function() {
+        var id, pop, selection;
+        selection = d3.select(this);
+        id = selection.attr('id').substring(2);
+        pop = c.data.overlay.rowById(id)["POP" + year];
+        return d3.select(this).transition().duration(500).attr("r", function() {
+          return circleDimension(pop);
+        });
+      });
+      return m;
+    };
+    m.el = function(value) {
+      if (!arguments.length) {
+        return c.el;
+      }
+      c.el = value;
+      return m;
+    };
+    m.data = function(value) {
+      if (!arguments.length) {
+        return c.data;
+      }
+      c.data = value;
+      return m;
+    };
     m.width = function(value) {
       if (!arguments.length) {
         return c.width;
@@ -28,20 +116,13 @@ define(['underscore'], function(_) {
       c.height = value;
       return m;
     };
-    m.scale = function(value) {
+    m.projection = function(value) {
       if (!arguments.length) {
         return c.scale;
       }
-      c.scale = value;
-      return m;
-    };
-    m.trans = function(value) {
-      if (!arguments.length) {
-        return c.trans;
-      }
-      c.trans = value;
+      c.projection = value;
       return m;
     };
     return m;
-  });
+  };
 });

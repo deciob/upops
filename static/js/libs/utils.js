@@ -27,6 +27,7 @@ define(['underscore'], function(_) {
   };
   getTranslation = function(scale) {
     var x_scale, y_scale;
+    console.log("utils:getTranslation", scale);
     x_scale = 480 / 150 * scale;
     y_scale = 250 / 150 * scale;
     return {

@@ -71,20 +71,20 @@ define [
         world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
         world_info.render()
         # Lets tell the world the data is here!
-        @trigger 'onDataLoad', arguments
+        @trigger 'onDataLoad', ds, wr
   
     world: ->
-      @deferred.done =>
+      @deferred.done (ds, wr) =>
         #console.log 'world:'
         #world_map = new WorldMap({dispatcher: @dispatcher})
         #@world_map.render arguments
         #@world_map.trigger 'activate', @world_map, arguments
-        @mapViewManager.activate @world_map, arguments
+        @mapViewManager.activate @world_map, [ds, wr]
         #world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
         #world_info.render()
 
     country: (code) ->
-      @deferred.done =>
+      @deferred.done (ds, wr) =>
         #console.log 'country:', code
         #@country_map .trigger 'activate', @country_map, code#arguments
         @mapViewManager.activate @country_map, arguments
