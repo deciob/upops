@@ -19,12 +19,14 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
     WorldMap.prototype.initialize = function(options) {
       WorldMap.__super__.initialize.call(this, options);
       this.defaultMessage = "World Map (main visualisation)";
-      return this.message = this.options.message || this.defaultMessage;
+      this.message = this.options.message || this.defaultMessage;
+      return this.rendered = false;
     };
 
     WorldMap.prototype.render = function(args) {
       var dimensions, ds, height, width, wr;
       this.gsubscribe('onSlide', this.updateChart, this);
+      this.gsubscribe('onNavigation:country', this.zoomToCountry, this);
       wr = args[1][0];
       ds = args[0];
       dimensions = this._getViewDimensions();
@@ -38,11 +40,17 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
       });
       this.map.width(width);
       this.map.height(height);
-      return this.map();
+      this.map();
+      return this.rendered = true;
     };
 
     WorldMap.prototype.updateChart = function(year) {
       return this.map.updateOverlay(year);
+    };
+
+    WorldMap.prototype.zoomToCountry = function(country) {
+      console.log('country, ', country);
+      return this.map.zoomToCountry(country);
     };
 
     return WorldMap;

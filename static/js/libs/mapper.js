@@ -35,23 +35,16 @@ define(['underscore'], function(_) {
       };
     };
     renderBaseMap = function(svg, path) {
-      var base, filtered_world, geom, world;
+      var base, graticule, world;
       if (!c.data.base) {
         return;
       }
       base = c.data.base;
       world = base.objects.world;
-      if (c.country) {
-        geom = _.filter(base.objects.world.geometries, function(geom) {
-          return geom.id === c.country;
-        });
-        filtered_world = {
-          geometries: geom,
-          type: "GeometryCollection"
-        };
-        world = filtered_world;
-      }
-      return svg.insert("path", ".graticule").datum(topojson.object(base, world)).attr("class", "land").attr("d", path);
+      graticule = d3.geo.graticule();
+      return svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
+        return d.id;
+      }).attr("d", path).attr("class", "country");
     };
     renderOverlay = function(svg, path) {
       var chart, dataset, g;
@@ -67,7 +60,8 @@ define(['underscore'], function(_) {
           return circleDimension(row.POP1950);
         });
       };
-      return dataset.each(chart, this);
+      dataset.each(chart, this);
+      return g;
     };
     centreMap = function(bounds, centroid, path) {
       var scale, trans;
@@ -78,24 +72,18 @@ define(['underscore'], function(_) {
       return c.projection.translate([trans.x, trans.y]);
     };
     m = function() {
-      var base_map, bounds, centroid, path, scale, svg, trans;
+      var bounds, centroid, scale, svg, trans;
       svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
       c.projection.translate([trans.x, trans.y]);
-      path = d3.geo.path().projection(c.projection);
-      base_map = renderBaseMap(svg, path);
+      c.path = d3.geo.path().projection(c.projection);
+      m.base_map = renderBaseMap(svg, c.path);
       bounds = false;
       centroid = false;
-      base_map.each(function(f, i) {
-        bounds = path.bounds(f);
-        return centroid = path.centroid(f);
-      });
-      renderOverlay(svg, path);
-      if (c.country) {
-        return centreMap(bounds, centroid, path);
-      }
+      console.log('xxxxx', m.base_map);
+      return m.overlay_map = renderOverlay(svg, c.path);
     };
     m.updateOverlay = function(year) {
       d3.select(c.el).selectAll("circle").datum(function() {
@@ -108,6 +96,34 @@ define(['underscore'], function(_) {
         });
       });
       return m;
+    };
+    m.zoomToCountry = function(country) {
+      var bounds, centered, centroid, d, el, k, x, y;
+      console.log('mapper:zoomToCountry', m.overlay_map);
+      el = m.base_map.filter(function(f, i) {
+        return f.id === country;
+      });
+      m.base_map.style("fill", "#FFFDF7");
+      el.style("fill", "#bbce3d");
+      d = el.data()[0];
+      x = 0;
+      y = 0;
+      k = 1;
+      if (d && centered !== d) {
+        centroid = c.path.centroid(d);
+        bounds = c.path.bounds(d);
+        k = 5;
+        x = -centroid[0] + c.width / 2 / k;
+        y = -centroid[1] + c.height / 2 / k;
+        centered = d;
+      } else {
+        centered = null;
+      }
+      m.base_map.selectAll("path").classed("active", centered && function(d) {
+        return d === centered;
+      });
+      m.base_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")").style("stroke-width", .5 / k + "px");
+      return m.overlay_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")");
     };
     m.el = function(value) {
       if (!arguments.length) {

@@ -21,10 +21,6 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
       this.world_map = new WorldMap({
         dispatcher: this.dispatcher
       });
-      this.country_map = new CountryMap({
-        dispatcher: this.dispatcher
-      });
-      this.mapViewManager = new Backbone.ViewManager(options, this.world_map, this.country_map);
       dataset = new Miso.Dataset({
         options: this.options,
         url: "static/data/urban_agglomerations.geojson",
@@ -53,13 +49,18 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
     world: function() {
       var _this = this;
       return this.deferred.done(function(ds, wr) {
-        return _this.mapViewManager.activate(_this.world_map, [ds, wr]);
+        if (!_this.world_map.rendered) {
+          return _this.world_map.render([ds, wr]);
+        }
       });
     },
     country: function(code) {
       var _this = this;
       return this.deferred.done(function(ds, wr) {
-        return _this.mapViewManager.activate(_this.country_map, [ds, wr, code]);
+        if (!_this.world_map.rendered) {
+          _this.world_map.render([ds, wr, code]);
+        }
+        return _this.dispatcher.trigger('onNavigation:country', code);
       });
     }
   });

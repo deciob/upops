@@ -19,10 +19,12 @@ define [
       @message = @options.message or @defaultMessage
       #@dispatcher.on 'onSlide', @updateChart, @
       #@gsubscribe 'onSlide', @updateChart, @
+      @rendered = no
 
     render: (args) ->
       #console.log 'WorldMap:render',  args
       @gsubscribe 'onSlide', @updateChart, @
+      @gsubscribe 'onNavigation:country', @zoomToCountry, @
       wr = args[1][0] # World topoJSON countries
       ds = args[0] # Cities dataset
       dimensions = @_getViewDimensions()
@@ -35,7 +37,12 @@ define [
       @map.height height
       # draw the map
       @map()
+      @rendered = yes
 
     updateChart: (year) ->
       @map.updateOverlay year
+
+    zoomToCountry: (country) ->
+      console.log 'country, ', country
+      @map.zoomToCountry(country)
 

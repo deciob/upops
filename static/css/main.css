@@ -67,7 +67,7 @@ body {
   stroke-dasharray: 1,2;
 }
 
-.land {
+.land, .country {
   fill: #FFFDF7; /*#d7c7ad;*/
   stroke: #766951;
 }
@@ -75,13 +75,14 @@ body {
 .boundary {
   fill: none;
   stroke: #a5967e;
+  stroke-width: .5px;
 }
 
 circle {
   fill: #EB9700;
   opacity: 0.6;
   stroke: #63450E;
-  stroke-width: 1;
+  stroke-width: 1px;
   cursor: pointer;
 }
 

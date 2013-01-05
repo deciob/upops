@@ -50,8 +50,8 @@ define [
       @dispatcher = _.clone(Backbone.Events)
       options = {dispatcher: @dispatcher}
       @world_map = new WorldMap({dispatcher: @dispatcher})
-      @country_map = new CountryMap({dispatcher: @dispatcher})
-      @mapViewManager = new Backbone.ViewManager(options, @world_map, @country_map)
+      #@country_map = new CountryMap({dispatcher: @dispatcher})
+      #@mapViewManager = new Backbone.ViewManager(options, @world_map, @country_map)
       
       # data initialization. 
       dataset = new Miso.Dataset(
@@ -75,19 +75,24 @@ define [
   
     world: ->
       @deferred.done (ds, wr) =>
+        if not @world_map.rendered
+          @world_map.render [ds, wr]
         #console.log 'world:'
         #world_map = new WorldMap({dispatcher: @dispatcher})
-        #@world_map.render arguments
         #@world_map.trigger 'activate', @world_map, arguments
-        @mapViewManager.activate @world_map, [ds, wr]
+        #@mapViewManager.activate @world_map, [ds, wr]
         #world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
         #world_info.render()
 
     country: (code) ->
       @deferred.done (ds, wr) =>
+        if not @world_map.rendered
+          @world_map.render [ds, wr, code]
+        @dispatcher.trigger 'onNavigation:country', code
         #console.log 'country:', code
         #@country_map .trigger 'activate', @country_map, code#arguments
-        @mapViewManager.activate @country_map, [ds, wr, code]
+        #@mapViewManager.activate @country_map, [ds, wr, code]
+        #@dispatcher.trigger 'onNavigation:country', code
   
     
   )

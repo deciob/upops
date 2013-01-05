@@ -46,15 +46,15 @@ define [
       unless c.data.base then return
       base = c.data.base
       world = base.objects.world
-      if c.country
-        geom = _.filter base.objects.world.geometries, (geom) -> 
-          geom.id == c.country
-        filtered_world = 
-          geometries: geom
-          type: "GeometryCollection"
-        world = filtered_world
+      #if c.country
+      #  geom = _.filter base.objects.world.geometries, (geom) -> 
+      #    geom.id == c.country
+      #  filtered_world = 
+      #    geometries: geom
+      #    type: "GeometryCollection"
+      #  world = filtered_world
         #console.log 'worl', world
-      #graticule = d3.geo.graticule()
+      graticule = d3.geo.graticule()
       #svg.append("path")
       #  .datum(graticule.outline)
       #  .attr("class", "background").attr "d", path
@@ -63,10 +63,28 @@ define [
       #  .selectAll("path").data(graticule.lines).enter()
       #    .append("path").attr "d", path
       #svg.append("path")
-      #  .datum(graticule.outline).attr("class", "foreground").attr "d", path
-      svg.insert("path", ".graticule")
-        .datum(topojson.object(base, world))
-        .attr("class", "land").attr "d", path
+      #  .datum(graticule.outline)
+      #  .attr("class", "foreground")
+      #  .attr "d", path
+
+      #subunits = topojson.object(uk, uk.objects.subunits);
+
+      #svg.insert("path", ".graticule")
+      #  .datum(topojson.object(base, world))
+      #  .attr("class", "land").attr "d", path
+
+      svg.selectAll(".country")
+        .data(topojson.object(base, world).geometries)
+      .enter().append("path")
+        .attr("id", (d) -> d.id)
+        .attr("d", path)
+        .attr("class", "country")
+
+      #svg.selectAll(".country")
+      #  .data(topojson.object(base, world.subunits).geometries)
+      #.enter().append("path")
+      #  .attr("class", function(d) { return "subunit " + d.id; })
+      #  .attr("d", path);
 
       #console.log 'sss', path.bounds('svg[0]')
       #svg.insert("path", ".graticule")
@@ -98,6 +116,7 @@ define [
             circleDimension(row.POP1950)
           )
       dataset.each(chart, @)
+      g
 
     centreMap = (bounds, centroid, path) ->
       console.log "mapper:centreMap", bounds, centroid, c.width
@@ -114,17 +133,19 @@ define [
       trans = getTranslation(scale)
       c.projection.scale(scale)
       c.projection.translate([trans.x, trans.y])
-      path = d3.geo.path().projection(c.projection)
+      c.path = d3.geo.path().projection(c.projection)
       #console.log path.bounds()
-      base_map = renderBaseMap(svg, path)
+      m.base_map = renderBaseMap(svg, c.path)
       bounds = no
       centroid = no
-      base_map.each (f, i) -> 
-        bounds = path.bounds(f)
-        centroid = path.centroid(f)
-      renderOverlay(svg, path)
-      if c.country
-        centreMap(bounds, centroid, path)
+      console.log 'xxxxx', m.base_map 
+      #@base_map.each (f, i) -> 
+      #  console.log f, i, 'dddddddddddd'
+      #  bounds = path.bounds(f)
+      #  centroid = path.centroid(f)
+      m.overlay_map = renderOverlay(svg, c.path)
+      #if c.country
+      #  centreMap(bounds, centroid, path)
 
     m.updateOverlay = (year) ->
       #console.log 'mapper:updateOverlay', @, year
@@ -139,6 +160,35 @@ define [
         .attr("r", -> circleDimension(pop))
       m
 
+    m.zoomToCountry = (country) ->
+      console.log 'mapper:zoomToCountry', m.overlay_map
+      el = m.base_map.filter (f, i) ->
+        f.id == country
+      m.base_map.style("fill", "#FFFDF7")
+      el.style("fill", "#bbce3d")
+      d = el.data()[0]
+      x = 0
+      y = 0
+      k = 1
+      if d and centered isnt d
+        centroid = c.path.centroid(d)
+        bounds = c.path.bounds(d)
+        k = 5
+        x = -centroid[0] + c.width / 2 / k
+        y = -centroid[1] + c.height / 2 / k
+        centered = d
+      else
+        centered = null
+      m.base_map.selectAll("path").classed "active", centered and (d) ->
+        d is centered
+      m.base_map.transition().duration(1000)
+      .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")
+      .style("stroke-width", .5 / k + "px")
+      m.overlay_map.transition().duration(1000)
+      .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")
+      
+      #.selectAll("circle").style("stroke-width", .5 / k + "px")
+      
     m.el = (value) ->
       return c.el unless arguments.length
       c.el = value
