@@ -5,7 +5,7 @@ define(['underscore'], function(_) {
 
   var mapper;
   return mapper = function(conf) {
-    var c, circleDimension, defaults, getScale, getTranslation, m, renderBaseMap, renderOverlay;
+    var c, centreMap, circleDimension, defaults, getScale, getTranslation, m, renderBaseMap, renderOverlay;
     defaults = {
       width: 960,
       height: 500,
@@ -35,19 +35,23 @@ define(['underscore'], function(_) {
       };
     };
     renderBaseMap = function(svg, path) {
-      var base, graticule;
+      var base, filtered_world, geom, world;
       if (!c.data.base) {
         return;
       }
       base = c.data.base;
-      graticule = d3.geo.graticule();
-      svg.append("path").datum(graticule.outline).attr("class", "background").attr("d", path);
-      svg.append("g").attr("class", "graticule").selectAll("path").data(graticule.lines).enter().append("path").attr("d", path);
-      svg.append("path").datum(graticule.outline).attr("class", "foreground").attr("d", path);
-      svg.insert("path", ".graticule").datum(topojson.object(base, base.objects.land)).attr("class", "land").attr("d", path);
-      return svg.insert("path", ".graticule").datum(topojson.mesh(base, base.objects.countries, function(a, b) {
-        return a.id !== b.id;
-      })).attr("class", "boundary").attr("d", path);
+      world = base.objects.world;
+      if (c.country) {
+        geom = _.filter(base.objects.world.geometries, function(geom) {
+          return geom.id === c.country;
+        });
+        filtered_world = {
+          geometries: geom,
+          type: "GeometryCollection"
+        };
+        world = filtered_world;
+      }
+      return svg.insert("path", ".graticule").datum(topojson.object(base, world)).attr("class", "land").attr("d", path);
     };
     renderOverlay = function(svg, path) {
       var chart, dataset, g;
@@ -65,16 +69,33 @@ define(['underscore'], function(_) {
       };
       return dataset.each(chart, this);
     };
+    centreMap = function(bounds, centroid, path) {
+      var scale, trans;
+      console.log("mapper:centreMap", bounds, centroid, c.width);
+      scale = getScale(c.width, c.height);
+      trans = getTranslation(scale);
+      c.projection.scale(scale);
+      return c.projection.translate([trans.x, trans.y]);
+    };
     m = function() {
-      var path, scale, svg, trans;
+      var base_map, bounds, centroid, path, scale, svg, trans;
       svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
       c.projection.translate([trans.x, trans.y]);
       path = d3.geo.path().projection(c.projection);
-      renderBaseMap(svg, path);
-      return renderOverlay(svg, path);
+      base_map = renderBaseMap(svg, path);
+      bounds = false;
+      centroid = false;
+      base_map.each(function(f, i) {
+        bounds = path.bounds(f);
+        return centroid = path.centroid(f);
+      });
+      renderOverlay(svg, path);
+      if (c.country) {
+        return centreMap(bounds, centroid, path);
+      }
     };
     m.updateOverlay = function(year) {
       d3.select(c.el).selectAll("circle").datum(function() {
@@ -100,6 +121,13 @@ define(['underscore'], function(_) {
         return c.data;
       }
       c.data = value;
+      return m;
+    };
+    m.country = function(value) {
+      if (!arguments.length) {
+        return c.data;
+      }
+      c.country = value;
       return m;
     };
     m.width = function(value) {

@@ -13,23 +13,35 @@ define(['underscore'], function(_) {
     footer_h = footer.height();
     return document_h - header_h - footer_h;
   };
-  getScale = function(width, height) {
+  getScale = function(width, height, map_dimensions) {
     var factor, map_proportion, view_proportion;
-    map_proportion = 500 / 960;
+    if (map_dimensions == null) {
+      map_dimensions = {
+        height: 500,
+        width: 960
+      };
+    }
+    map_proportion = map_dimensions.height / map_dimensions.width;
     view_proportion = height / width;
     if (view_proportion > map_proportion) {
-      factor = 150 / 960;
+      factor = 150 / map_dimensions.width;
       return width * factor;
     } else {
-      factor = 150 / 500;
+      factor = 150 / map_dimensions.height;
       return height * factor;
     }
   };
-  getTranslation = function(scale) {
+  getTranslation = function(scale, map_dimensions) {
     var x_scale, y_scale;
+    if (map_dimensions == null) {
+      map_dimensions = {
+        height: 500,
+        width: 960
+      };
+    }
     console.log("utils:getTranslation", scale);
-    x_scale = 480 / 150 * scale;
-    y_scale = 250 / 150 * scale;
+    x_scale = (map_dimensions.width / 2) / 150 * scale;
+    y_scale = (map_dimensions.height / 2) / 150 * scale;
     return {
       x: x_scale,
       y: y_scale

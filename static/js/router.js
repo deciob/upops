@@ -30,7 +30,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
         url: "static/data/urban_agglomerations.geojson",
         parser: GeoJsonParser
       });
-      world = $.ajax("static/data/world-110m.json");
+      world = $.ajax("static/data/topo_world.json");
       this.deferred = _.when(dataset.fetch(), world);
       return this.deferred.done(function(ds, wr) {
         var timeline, top, world_info;
@@ -59,7 +59,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
     country: function(code) {
       var _this = this;
       return this.deferred.done(function(ds, wr) {
-        return _this.mapViewManager.activate(_this.country_map, arguments);
+        return _this.mapViewManager.activate(_this.country_map, [ds, wr, code]);
       });
     }
   });

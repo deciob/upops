@@ -8,20 +8,21 @@ define [
   'use strict'
 
 
-  WorldMap = Base.extend
+  class WorldMap extends Base
 
     el: "#world_map"
 
     initialize: (options) ->
-      @options = options or {}
-      @dispatcher = options.dispatcher
+      super options
       #@setElement $(@el)
       @defaultMessage = "World Map (main visualisation)"
       @message = @options.message or @defaultMessage
-      @dispatcher.on 'onSlide', @updateChart, @
+      #@dispatcher.on 'onSlide', @updateChart, @
+      #@gsubscribe 'onSlide', @updateChart, @
 
     render: (args) ->
       #console.log 'WorldMap:render',  args
+      @gsubscribe 'onSlide', @updateChart, @
       wr = args[1][0] # World topoJSON countries
       ds = args[0] # Cities dataset
       dimensions = @_getViewDimensions()
@@ -38,8 +39,3 @@ define [
     updateChart: (year) ->
       @map.updateOverlay year
 
-    _getViewDimensions: ->
-      height:
-        utils.getMiddleHeight()
-      width:
-        $(@el).innerWidth()

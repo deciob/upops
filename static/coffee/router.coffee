@@ -59,7 +59,7 @@ define [
         url: "static/data/urban_agglomerations.geojson"
         parser : GeoJsonParser
       )
-      world = $.ajax "static/data/world-110m.json"
+      world = $.ajax "static/data/topo_world.json"
       @deferred = _.when(dataset.fetch(), world)
       @deferred.done (ds, wr) =>
         #console.log "onDataLoad", @, arguments, 'kk', a, b
@@ -87,7 +87,7 @@ define [
       @deferred.done (ds, wr) =>
         #console.log 'country:', code
         #@country_map .trigger 'activate', @country_map, code#arguments
-        @mapViewManager.activate @country_map, arguments
+        @mapViewManager.activate @country_map, [ds, wr, code]
   
     
   )
