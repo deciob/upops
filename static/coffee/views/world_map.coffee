@@ -43,6 +43,6 @@ define [
       @map.updateOverlay year
 
     zoomToCountry: (country) ->
-      console.log 'country, ', country
+      #console.log 'country, ', country
       @map.zoomToCountry(country)
 

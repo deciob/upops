@@ -126,7 +126,7 @@ define [
       g
 
     centreMap = (bounds, centroid, path) ->
-      console.log "mapper:centreMap", bounds, centroid, c.width
+      #console.log "mapper:centreMap", bounds, centroid, c.width
       scale = getScale(c.width, c.height)
       trans = getTranslation(scale)
       c.projection.scale(scale)
@@ -147,7 +147,7 @@ define [
       centroid = no
       #console.log 'xxxxx', m.base_map 
       #@base_map.each (f, i) -> 
-      #  console.log f, i, 'dddddddddddd'
+      #console.log f, i, 'dddddddddddd'
       #  bounds = path.bounds(f)
       #  centroid = path.centroid(f)
       m.overlay_map = renderOverlay(svg, c.path)
@@ -168,18 +168,18 @@ define [
       m
 
     m.zoomToCountry = (country) ->
-      console.log 'mapper:zoomToCountry', m.overlay_map
+      #console.log 'mapper:zoomToCountry', m.overlay_map
       # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
       if country
         el = m.base_map.filter (f, i) ->
           f.id == country
         # Highlight the selected country
-        el.style("fill", "#e4e0d1")
+        el.style("fill", "#860000")
         # 
         #m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px")
         #m.overlay_map.selectAll("circle").each ->
-        #  console.log 'ssdsdsdsdsd', @
+        #console.log 'ssdsdsdsdsd', @
         d = el.data()[0]
         if d and centered isnt d
           c.centroid = c.path.centroid(d)

@@ -49,7 +49,6 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
     };
 
     WorldMap.prototype.zoomToCountry = function(country) {
-      console.log('country, ', country);
       return this.map.zoomToCountry(country);
     };
 

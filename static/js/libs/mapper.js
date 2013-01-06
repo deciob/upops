@@ -73,7 +73,6 @@ define(['underscore'], function(_) {
     };
     centreMap = function(bounds, centroid, path) {
       var scale, trans;
-      console.log("mapper:centreMap", bounds, centroid, c.width);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
@@ -106,13 +105,12 @@ define(['underscore'], function(_) {
     };
     m.zoomToCountry = function(country) {
       var bounds, centered, d, el, k, x, y;
-      console.log('mapper:zoomToCountry', m.overlay_map);
       m.base_map.style("fill", "#FFFDF7");
       if (country) {
         el = m.base_map.filter(function(f, i) {
           return f.id === country;
         });
-        el.style("fill", "#e4e0d1");
+        el.style("fill", "#860000");
         d = el.data()[0];
         if (d && centered !== d) {
           c.centroid = c.path.centroid(d);
