@@ -27,6 +27,7 @@ define [
       @gsubscribe 'onNavigation:country', @zoomToCountry, @
       wr = args[1][0] # World topoJSON countries
       ds = args[0] # Cities dataset
+      country = args[2]
       dimensions = @_getViewDimensions()
       width = dimensions.width
       height = dimensions.height 
@@ -36,7 +37,7 @@ define [
       @map.width width
       @map.height height
       # draw the map
-      @map()
+      @map country
       @rendered = yes
 
     updateChart: (year) ->

@@ -24,11 +24,12 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
     };
 
     WorldMap.prototype.render = function(args) {
-      var dimensions, ds, height, width, wr;
+      var country, dimensions, ds, height, width, wr;
       this.gsubscribe('onSlide', this.updateChart, this);
       this.gsubscribe('onNavigation:country', this.zoomToCountry, this);
       wr = args[1][0];
       ds = args[0];
+      country = args[2];
       dimensions = this._getViewDimensions();
       width = dimensions.width;
       height = dimensions.height;
@@ -40,7 +41,7 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
       });
       this.map.width(width);
       this.map.height(height);
-      this.map();
+      this.map(country);
       return this.rendered = true;
     };
 

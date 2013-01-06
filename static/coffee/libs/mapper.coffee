@@ -93,7 +93,7 @@ define [
       #)).attr("class", "boundary").attr "d", path
 
     renderOverlay = (svg, path, country) ->
-      #console.log "mapper:renderOverlay", svg, c.data, c.data.overlay
+      console.log "mapper:renderOverlay", country
       unless c.data.overlay then return
       if country
         dataset = ds.where
@@ -102,28 +102,55 @@ define [
       else
         dataset = c.data.overlay
       # TODO: not convinced here about the best way to do this.
-      g = svg.append("g").attr("id", "cities_container")
-      chart = (row) ->
-        #console.log row
-        xy = c.projection([
-          row.geometry.coordinates[0], 
-          row.geometry.coordinates[1]])
-        g.append("circle")
-          .attr("r", 0)
-          .attr("cx", xy[0])
-          .attr("cy", xy[1])
-          # TODO: remove hard-coded...
-          .attr("id", "c_#{row._id}") # namespacing the id
-          #.attr("class", row.iso_a2)
-          #.on('click', self.overIncident)
-          .transition()
-          .duration(2000)
-          .attr("r", (d) ->
-            # TODO: remove hard-coded `row.POP1950`
-            circleDimension(row.POP1950)
-          )
-      dataset.each(chart, @)
-      g
+      unless c.circle_g
+        c.circle_g = svg.append("g").attr("id", "cities_container")
+
+      # DATA JOIN
+      cities = c.circle_g.selectAll("circle")
+        .data dataset.toJSON()
+      # UPDATE
+      #cities.attr("class", "update");
+      # ENTER
+      cities.enter().append("circle")
+        .attr("r", 0)
+        .attr("cx", (d, i) ->
+          c.projection([
+            d.geometry.coordinates[0],
+            d.geometry.coordinates[1]])[0])
+        .attr("cy", (d, i) -> 
+          c.projection([
+            d.geometry.coordinates[0],
+            d.geometry.coordinates[1]])[1])
+        .attr("id", (d, i) -> "c_#{d._id}")
+        .transition()
+        .duration(2000)
+        .attr("r", (d) -> circleDimension(d.POP1950)) #TODO: remove hard-coded
+      # EXIT
+      console.log 'exit', dataset.toJSON()
+      cities.exit().remove()
+
+
+      #chart = (row) ->
+      #  #console.log row
+      #  xy = c.projection([
+      #    row.geometry.coordinates[0], 
+      #    row.geometry.coordinates[1]])
+      #  g.append("circle")
+      #    .attr("r", 0)
+      #    .attr("cx", xy[0])
+      #    .attr("cy", xy[1])
+      #    # TODO: remove hard-coded...
+      #    .attr("id", "c_#{row._id}") # namespacing the id
+      #    #.attr("class", row.iso_a2)
+      #    #.on('click', self.overIncident)
+      #    .transition()
+      #    .duration(2000)
+      #    .attr("r", (d) ->
+      #      # TODO: remove hard-coded `row.POP1950`
+      #      circleDimension(row.POP1950)
+      #    )
+      #dataset.each(chart, @)
+      c.circle_g
 
     centreMap = (bounds, centroid, path) ->
       #console.log "mapper:centreMap", bounds, centroid, c.width
@@ -132,8 +159,8 @@ define [
       c.projection.scale(scale)
       c.projection.translate([trans.x, trans.y])
 
-    m = ->
-      #console.log 'mapper:m', c
+    m = (country) ->
+      console.log 'mapper:m', c
       svg = d3.select(c.el)
         .append("svg").attr("width", c.width).attr("height", c.height)
       scale = getScale(c.width, c.height)
@@ -150,7 +177,10 @@ define [
       #console.log f, i, 'dddddddddddd'
       #  bounds = path.bounds(f)
       #  centroid = path.centroid(f)
-      m.overlay_map = renderOverlay(svg, c.path)
+      if country
+        m.zoomToCountry country
+      else
+        m.overlay_map = renderOverlay(svg, c.path)
       #if c.country
       #  centreMap(bounds, centroid, path)
 
@@ -171,6 +201,7 @@ define [
       #console.log 'mapper:zoomToCountry', m.overlay_map
       # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
+      renderOverlay(no, country)
       if country
         el = m.base_map.filter (f, i) ->
           f.id == country

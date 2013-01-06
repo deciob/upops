@@ -58,10 +58,12 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
     country: function(code) {
       var _this = this;
       return this.deferred.done(function(ds, wr) {
+        console.log("router:country", code, _this.world_map.rendered);
         if (!_this.world_map.rendered) {
-          _this.world_map.render([ds, wr, code]);
+          return _this.world_map.render([ds, wr, code]);
+        } else {
+          return _this.world_map.zoomToCountry(code);
         }
-        return _this.world_map.zoomToCountry(code);
       });
     }
   });

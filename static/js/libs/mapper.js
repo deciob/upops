@@ -47,7 +47,8 @@ define(['underscore'], function(_) {
       }).attr("d", path).attr("class", "country");
     };
     renderOverlay = function(svg, path, country) {
-      var chart, dataset, g;
+      var cities, dataset;
+      console.log("mapper:renderOverlay", country);
       if (!c.data.overlay) {
         return;
       }
@@ -60,16 +61,22 @@ define(['underscore'], function(_) {
       } else {
         dataset = c.data.overlay;
       }
-      g = svg.append("g").attr("id", "cities_container");
-      chart = function(row) {
-        var xy;
-        xy = c.projection([row.geometry.coordinates[0], row.geometry.coordinates[1]]);
-        return g.append("circle").attr("r", 0).attr("cx", xy[0]).attr("cy", xy[1]).attr("id", "c_" + row._id).transition().duration(2000).attr("r", function(d) {
-          return circleDimension(row.POP1950);
-        });
-      };
-      dataset.each(chart, this);
-      return g;
+      if (!c.circle_g) {
+        c.circle_g = svg.append("g").attr("id", "cities_container");
+      }
+      cities = c.circle_g.selectAll("circle").data(dataset.toJSON());
+      cities.enter().append("circle").attr("r", 0).attr("cx", function(d, i) {
+        return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
+      }).attr("cy", function(d, i) {
+        return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1];
+      }).attr("id", function(d, i) {
+        return "c_" + d._id;
+      }).transition().duration(2000).attr("r", function(d) {
+        return circleDimension(d.POP1950);
+      });
+      console.log('exit', dataset.toJSON());
+      cities.exit().remove();
+      return c.circle_g;
     };
     centreMap = function(bounds, centroid, path) {
       var scale, trans;
@@ -78,8 +85,9 @@ define(['underscore'], function(_) {
       c.projection.scale(scale);
       return c.projection.translate([trans.x, trans.y]);
     };
-    m = function() {
+    m = function(country) {
       var bounds, centroid, scale, svg, trans;
+      console.log('mapper:m', c);
       svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
@@ -89,7 +97,11 @@ define(['underscore'], function(_) {
       m.base_map = renderBaseMap(svg, c.path);
       bounds = false;
       centroid = false;
-      return m.overlay_map = renderOverlay(svg, c.path);
+      if (country) {
+        return m.zoomToCountry(country);
+      } else {
+        return m.overlay_map = renderOverlay(svg, c.path);
+      }
     };
     m.updateOverlay = function(year) {
       d3.select(c.el).selectAll("circle").datum(function() {
@@ -106,6 +118,7 @@ define(['underscore'], function(_) {
     m.zoomToCountry = function(country) {
       var bounds, centered, d, el, k, x, y;
       m.base_map.style("fill", "#FFFDF7");
+      renderOverlay(false, country);
       if (country) {
         el = m.base_map.filter(function(f, i) {
           return f.id === country;
