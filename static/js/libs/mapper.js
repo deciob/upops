@@ -34,7 +34,7 @@ define(['underscore'], function(_) {
         y: y_scale
       };
     };
-    renderBaseMap = function(svg, path) {
+    renderBaseMap = function() {
       var base, graticule, world;
       if (!c.data.base) {
         return;
@@ -42,40 +42,47 @@ define(['underscore'], function(_) {
       base = c.data.base;
       world = base.objects.world;
       graticule = d3.geo.graticule();
-      return svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
+      return c.svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
         return d.id;
-      }).attr("d", path).attr("class", "country");
+      }).attr("d", c.path).attr("class", "country");
     };
-    renderOverlay = function(svg, path, country) {
-      var cities, dataset;
-      console.log("mapper:renderOverlay", country);
+    renderOverlay = function(country) {
+      var dataset, join;
+      if (country == null) {
+        country = false;
+      }
       if (!c.data.overlay) {
         return;
       }
+      join = function(dataset) {
+        var cities;
+        cities = c.circle_g.selectAll("circle").data(dataset);
+        cities.enter().append("circle").attr("r", 0).attr("cx", function(d, i) {
+          return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
+        }).attr("cy", function(d, i) {
+          return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1];
+        }).attr("id", function(d, i) {
+          return "c_" + d._id;
+        }).attr("class", function(d, i) {
+          return d.iso_a2;
+        }).transition().duration(2000).attr("r", function(d) {
+          return circleDimension(d.POP1950);
+        });
+        return cities.exit().remove();
+      };
       if (country) {
-        dataset = ds.where({
+        dataset = c.data.overlay.where({
           rows: function(row) {
-            return row["iso_a2"] === country_code;
+            return row["iso_a2"] === country;
           }
         });
       } else {
         dataset = c.data.overlay;
       }
       if (!c.circle_g) {
-        c.circle_g = svg.append("g").attr("id", "cities_container");
+        c.circle_g = c.svg.append("g").attr("id", "cities_container");
       }
-      cities = c.circle_g.selectAll("circle").data(dataset.toJSON());
-      cities.enter().append("circle").attr("r", 0).attr("cx", function(d, i) {
-        return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
-      }).attr("cy", function(d, i) {
-        return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1];
-      }).attr("id", function(d, i) {
-        return "c_" + d._id;
-      }).transition().duration(2000).attr("r", function(d) {
-        return circleDimension(d.POP1950);
-      });
-      console.log('exit', dataset.toJSON());
-      cities.exit().remove();
+      join(dataset.toJSON());
       return c.circle_g;
     };
     centreMap = function(bounds, centroid, path) {
@@ -86,21 +93,21 @@ define(['underscore'], function(_) {
       return c.projection.translate([trans.x, trans.y]);
     };
     m = function(country) {
-      var bounds, centroid, scale, svg, trans;
-      console.log('mapper:m', c);
-      svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
+      var scale, trans;
+      if (country == null) {
+        country = false;
+      }
+      c.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
       c.projection.translate([trans.x, trans.y]);
       c.path = d3.geo.path().projection(c.projection);
-      m.base_map = renderBaseMap(svg, c.path);
-      bounds = false;
-      centroid = false;
       if (country) {
-        return m.zoomToCountry(country);
+        return m.zoomToCountry(country, true);
       } else {
-        return m.overlay_map = renderOverlay(svg, c.path);
+        m.base_map = renderBaseMap();
+        return m.overlay_map = renderOverlay();
       }
     };
     m.updateOverlay = function(year) {
@@ -115,10 +122,16 @@ define(['underscore'], function(_) {
       });
       return m;
     };
-    m.zoomToCountry = function(country) {
+    m.zoomToCountry = function(country, init) {
       var bounds, centered, d, el, k, x, y;
+      if (init == null) {
+        init = false;
+      }
+      if (init) {
+        m.base_map = renderBaseMap();
+      }
       m.base_map.style("fill", "#FFFDF7");
-      renderOverlay(false, country);
+      m.overlay_map = renderOverlay(country);
       if (country) {
         el = m.base_map.filter(function(f, i) {
           return f.id === country;
@@ -128,7 +141,7 @@ define(['underscore'], function(_) {
         if (d && centered !== d) {
           c.centroid = c.path.centroid(d);
           bounds = c.path.bounds(d);
-          k = 5;
+          k = 6;
           x = -c.centroid[0] + c.width / 2 / k;
           y = -c.centroid[1] + c.height / 2 / k;
           centered = d;

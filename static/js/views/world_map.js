@@ -26,7 +26,6 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
     WorldMap.prototype.render = function(args) {
       var country, dimensions, ds, height, width, wr;
       this.gsubscribe('onSlide', this.updateChart, this);
-      this.gsubscribe('onNavigation:country', this.zoomToCountry, this);
       wr = args[1][0];
       ds = args[0];
       country = args[2];
