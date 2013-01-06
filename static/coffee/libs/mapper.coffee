@@ -44,7 +44,11 @@ define [
     renderBaseMap = (svg, path) ->
       #console.log "mapper:renderBaseMap", path.bounds()
       unless c.data.base then return
-      base = c.data.base
+      #### Heroku hack!!!! --- TODO: find out why!!! ####
+      if typeof c.data.base == "string"  # on Heroku
+        base = JSON.parse c.data.base
+      else                               # my dev server
+        base = c.data.base
       world = base.objects.world
       #if c.country
       #  geom = _.filter base.objects.world.geometries, (geom) -> 

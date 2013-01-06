@@ -39,7 +39,11 @@ define(['underscore'], function(_) {
       if (!c.data.base) {
         return;
       }
-      base = c.data.base;
+      if (typeof c.data.base === "string") {
+        base = JSON.parse(c.data.base);
+      } else {
+        base = c.data.base;
+      }
       world = base.objects.world;
       graticule = d3.geo.graticule();
       return svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
