@@ -77,6 +77,7 @@ define [
       @deferred.done (ds, wr) =>
         if not @world_map.rendered
           @world_map.render [ds, wr]
+        @world_map.zoomToCountry()
         #console.log 'world:'
         #world_map = new WorldMap({dispatcher: @dispatcher})
         #@world_map.trigger 'activate', @world_map, arguments
@@ -88,7 +89,8 @@ define [
       @deferred.done (ds, wr) =>
         if not @world_map.rendered
           @world_map.render [ds, wr, code]
-        @dispatcher.trigger 'onNavigation:country', code
+        @world_map.zoomToCountry code
+        #@dispatcher.trigger 'onNavigation:country', code
         #console.log 'country:', code
         #@country_map .trigger 'activate', @country_map, code#arguments
         #@mapViewManager.activate @country_map, [ds, wr, code]

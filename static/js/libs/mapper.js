@@ -46,13 +46,21 @@ define(['underscore'], function(_) {
         return d.id;
       }).attr("d", path).attr("class", "country");
     };
-    renderOverlay = function(svg, path) {
+    renderOverlay = function(svg, path, country) {
       var chart, dataset, g;
       if (!c.data.overlay) {
         return;
       }
-      dataset = c.data.overlay;
-      g = svg.append("g");
+      if (country) {
+        dataset = ds.where({
+          rows: function(row) {
+            return row["iso_a2"] === country_code;
+          }
+        });
+      } else {
+        dataset = c.data.overlay;
+      }
+      g = svg.append("g").attr("id", "cities_container");
       chart = function(row) {
         var xy;
         xy = c.projection([row.geometry.coordinates[0], row.geometry.coordinates[1]]);
@@ -82,7 +90,6 @@ define(['underscore'], function(_) {
       m.base_map = renderBaseMap(svg, c.path);
       bounds = false;
       centroid = false;
-      console.log('xxxxx', m.base_map);
       return m.overlay_map = renderOverlay(svg, c.path);
     };
     m.updateOverlay = function(year) {
@@ -98,32 +105,36 @@ define(['underscore'], function(_) {
       return m;
     };
     m.zoomToCountry = function(country) {
-      var bounds, centered, centroid, d, el, k, x, y;
+      var bounds, centered, d, el, k, x, y;
       console.log('mapper:zoomToCountry', m.overlay_map);
-      el = m.base_map.filter(function(f, i) {
-        return f.id === country;
-      });
       m.base_map.style("fill", "#FFFDF7");
-      el.style("fill", "#bbce3d");
-      d = el.data()[0];
-      x = 0;
-      y = 0;
-      k = 1;
-      if (d && centered !== d) {
-        centroid = c.path.centroid(d);
-        bounds = c.path.bounds(d);
-        k = 5;
-        x = -centroid[0] + c.width / 2 / k;
-        y = -centroid[1] + c.height / 2 / k;
-        centered = d;
+      if (country) {
+        el = m.base_map.filter(function(f, i) {
+          return f.id === country;
+        });
+        el.style("fill", "#e4e0d1");
+        d = el.data()[0];
+        if (d && centered !== d) {
+          c.centroid = c.path.centroid(d);
+          bounds = c.path.bounds(d);
+          k = 5;
+          x = -c.centroid[0] + c.width / 2 / k;
+          y = -c.centroid[1] + c.height / 2 / k;
+          centered = d;
+        } else {
+          centered = null;
+        }
       } else {
-        centered = null;
+        x = 0;
+        y = 0;
+        k = 1;
       }
       m.base_map.selectAll("path").classed("active", centered && function(d) {
         return d === centered;
       });
       m.base_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")").style("stroke-width", .5 / k + "px");
-      return m.overlay_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")");
+      m.overlay_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")");
+      return m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px");
     };
     m.el = function(value) {
       if (!arguments.length) {

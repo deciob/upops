@@ -92,12 +92,17 @@ define [
       #    a.id isnt b.id
       #)).attr("class", "boundary").attr "d", path
 
-    renderOverlay = (svg, path) ->
+    renderOverlay = (svg, path, country) ->
       #console.log "mapper:renderOverlay", svg, c.data, c.data.overlay
       unless c.data.overlay then return
-      dataset = c.data.overlay
-      #self = @
-      g = svg.append("g")
+      if country
+        dataset = ds.where
+          rows: (row) ->
+            row["iso_a2"] == country_code
+      else
+        dataset = c.data.overlay
+      # TODO: not convinced here about the best way to do this.
+      g = svg.append("g").attr("id", "cities_container")
       chart = (row) ->
         #console.log row
         xy = c.projection([
@@ -107,7 +112,9 @@ define [
           .attr("r", 0)
           .attr("cx", xy[0])
           .attr("cy", xy[1])
+          # TODO: remove hard-coded...
           .attr("id", "c_#{row._id}") # namespacing the id
+          #.attr("class", row.iso_a2)
           #.on('click', self.overIncident)
           .transition()
           .duration(2000)
@@ -138,7 +145,7 @@ define [
       m.base_map = renderBaseMap(svg, c.path)
       bounds = no
       centroid = no
-      console.log 'xxxxx', m.base_map 
+      #console.log 'xxxxx', m.base_map 
       #@base_map.each (f, i) -> 
       #  console.log f, i, 'dddddddddddd'
       #  bounds = path.bounds(f)
@@ -162,32 +169,39 @@ define [
 
     m.zoomToCountry = (country) ->
       console.log 'mapper:zoomToCountry', m.overlay_map
-      el = m.base_map.filter (f, i) ->
-        f.id == country
+      # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
-      el.style("fill", "#bbce3d")
-      d = el.data()[0]
-      x = 0
-      y = 0
-      k = 1
-      if d and centered isnt d
-        centroid = c.path.centroid(d)
-        bounds = c.path.bounds(d)
-        k = 5
-        x = -centroid[0] + c.width / 2 / k
-        y = -centroid[1] + c.height / 2 / k
-        centered = d
+      if country
+        el = m.base_map.filter (f, i) ->
+          f.id == country
+        # Highlight the selected country
+        el.style("fill", "#e4e0d1")
+        # 
+        #m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px")
+        #m.overlay_map.selectAll("circle").each ->
+        #  console.log 'ssdsdsdsdsd', @
+        d = el.data()[0]
+        if d and centered isnt d
+          c.centroid = c.path.centroid(d)
+          bounds = c.path.bounds(d)
+          k = 5
+          x = -c.centroid[0] + c.width / 2 / k
+          y = -c.centroid[1] + c.height / 2 / k
+          centered = d
+        else
+          centered = null
       else
-        centered = null
+        x = 0
+        y = 0
+        k = 1
       m.base_map.selectAll("path").classed "active", centered and (d) ->
         d is centered
       m.base_map.transition().duration(1000)
       .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")
       .style("stroke-width", .5 / k + "px")
       m.overlay_map.transition().duration(1000)
-      .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")
-      
-      #.selectAll("circle").style("stroke-width", .5 / k + "px")
+      .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")      
+      m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px")
       
     m.el = (value) ->
       return c.el unless arguments.length

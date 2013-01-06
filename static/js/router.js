@@ -50,8 +50,9 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
       var _this = this;
       return this.deferred.done(function(ds, wr) {
         if (!_this.world_map.rendered) {
-          return _this.world_map.render([ds, wr]);
+          _this.world_map.render([ds, wr]);
         }
+        return _this.world_map.zoomToCountry();
       });
     },
     country: function(code) {
@@ -60,7 +61,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/worl
         if (!_this.world_map.rendered) {
           _this.world_map.render([ds, wr, code]);
         }
-        return _this.dispatcher.trigger('onNavigation:country', code);
+        return _this.world_map.zoomToCountry(code);
       });
     }
   });
