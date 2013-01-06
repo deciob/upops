@@ -41,7 +41,7 @@ define [
       y:
         y_scale
 
-    renderBaseMap = (svg, path) ->
+    renderBaseMap = ->
       #console.log "mapper:renderBaseMap", path.bounds()
       unless c.data.base then return
       #### Heroku hack!!!! --- TODO: find out why!!! ####
@@ -50,84 +50,61 @@ define [
       else                               # my dev server
         base = c.data.base
       world = base.objects.world
-      #if c.country
-      #  geom = _.filter base.objects.world.geometries, (geom) -> 
-      #    geom.id == c.country
-      #  filtered_world = 
-      #    geometries: geom
-      #    type: "GeometryCollection"
-      #  world = filtered_world
-        #console.log 'worl', world
       graticule = d3.geo.graticule()
-      #svg.append("path")
-      #  .datum(graticule.outline)
-      #  .attr("class", "background").attr "d", path
-      #svg.append("g")
-      #  .attr("class", "graticule")
-      #  .selectAll("path").data(graticule.lines).enter()
-      #    .append("path").attr "d", path
-      #svg.append("path")
-      #  .datum(graticule.outline)
-      #  .attr("class", "foreground")
-      #  .attr "d", path
-
-      #subunits = topojson.object(uk, uk.objects.subunits);
-
-      #svg.insert("path", ".graticule")
-      #  .datum(topojson.object(base, world))
-      #  .attr("class", "land").attr "d", path
-
-      svg.selectAll(".country")
+      c.svg.selectAll(".country")
         .data(topojson.object(base, world).geometries)
       .enter().append("path")
         .attr("id", (d) -> d.id)
-        .attr("d", path)
+        .attr("d", c.path)
         .attr("class", "country")
 
-      #svg.selectAll(".country")
-      #  .data(topojson.object(base, world.subunits).geometries)
-      #.enter().append("path")
-      #  .attr("class", function(d) { return "subunit " + d.id; })
-      #  .attr("d", path);
-
-      #console.log 'sss', path.bounds('svg[0]')
-      #svg.insert("path", ".graticule")
-      #  .datum(topojson.mesh(base, base.objects.countries, (a, b) ->
-      #    a.id isnt b.id
-      #)).attr("class", "boundary").attr "d", path
-
-    renderOverlay = (svg, path, country) ->
-      #console.log "mapper:renderOverlay", svg, c.data, c.data.overlay
+    renderOverlay = (country=no) ->  #svg, path, 
+      #console.log "mapper:renderOverlay", country, c.data.overlay
       unless c.data.overlay then return
-      if country
-        dataset = ds.where
-          rows: (row) ->
-            row["iso_a2"] == country_code
-      else
-        dataset = c.data.overlay
-      # TODO: not convinced here about the best way to do this.
-      g = svg.append("g").attr("id", "cities_container")
-      chart = (row) ->
-        #console.log row
-        xy = c.projection([
-          row.geometry.coordinates[0], 
-          row.geometry.coordinates[1]])
-        g.append("circle")
+      join = (dataset) ->
+        # DATA JOIN
+        cities = c.circle_g.selectAll("circle")
+          .data dataset
+        # UPDATE
+        #cities.attr("class", "update");
+        # ENTER
+        #console.log 'before enter'
+        cities.enter().append("circle")
           .attr("r", 0)
-          .attr("cx", xy[0])
-          .attr("cy", xy[1])
-          # TODO: remove hard-coded...
-          .attr("id", "c_#{row._id}") # namespacing the id
-          #.attr("class", row.iso_a2)
-          #.on('click', self.overIncident)
+          .attr("cx", (d, i) ->
+            c.projection([
+              d.geometry.coordinates[0],
+              d.geometry.coordinates[1]])[0])
+          .attr("cy", (d, i) -> 
+            c.projection([
+              d.geometry.coordinates[0],
+              d.geometry.coordinates[1]])[1])
+          .attr("id", (d, i) -> 
+            "c_#{d._id}")
+          .attr("class", (d, i) -> d.iso_a2)
           .transition()
           .duration(2000)
-          .attr("r", (d) ->
-            # TODO: remove hard-coded `row.POP1950`
-            circleDimension(row.POP1950)
-          )
-      dataset.each(chart, @)
-      g
+          .attr("r", (d) -> circleDimension(d.POP1950)) #TODO: remove hard-coded
+        # EXIT
+        #console.log 'exit', dataset.toJSON()
+        cities.exit().remove()
+
+      if country
+        dataset = c.data.overlay.where
+          rows: (row) ->
+            row["iso_a2"] == country
+      else
+        dataset = c.data.overlay
+      #console.log 'dataset', dataset.toJSON()
+      # TODO: not convinced here about the best way to do this.
+      unless c.circle_g
+        c.circle_g = c.svg.append("g").attr("id", "cities_container")
+      #console.log 'before join'
+      join dataset.toJSON()
+
+      
+      # Return the overlay.
+      c.circle_g
 
     centreMap = (bounds, centroid, path) ->
       #console.log "mapper:centreMap", bounds, centroid, c.width
@@ -136,27 +113,23 @@ define [
       c.projection.scale(scale)
       c.projection.translate([trans.x, trans.y])
 
-    m = ->
-      #console.log 'mapper:m', c
-      svg = d3.select(c.el)
+    # It has an optional country (code) parameter in case the app 
+    # is opened from a country specific url.
+    m = (country=no) ->
+      #console.log 'mapper:m', country
+      # SVG container for the whole map (base map and cities map)
+      c.svg = d3.select(c.el)
         .append("svg").attr("width", c.width).attr("height", c.height)
       scale = getScale(c.width, c.height)
       trans = getTranslation(scale)
       c.projection.scale(scale)
       c.projection.translate([trans.x, trans.y])
       c.path = d3.geo.path().projection(c.projection)
-      #console.log path.bounds()
-      m.base_map = renderBaseMap(svg, c.path)
-      bounds = no
-      centroid = no
-      #console.log 'xxxxx', m.base_map 
-      #@base_map.each (f, i) -> 
-      #console.log f, i, 'dddddddddddd'
-      #  bounds = path.bounds(f)
-      #  centroid = path.centroid(f)
-      m.overlay_map = renderOverlay(svg, c.path)
-      #if c.country
-      #  centreMap(bounds, centroid, path)
+      if country  # if the app is initialized with a country...
+        m.zoomToCountry country, yes
+      else
+        m.base_map = renderBaseMap() #(svg, c.path)
+        m.overlay_map = renderOverlay() #(svg, c.path)
 
     m.updateOverlay = (year) ->
       #console.log 'mapper:updateOverlay', @, year
@@ -171,24 +144,26 @@ define [
         .attr("r", -> circleDimension(pop))
       m
 
-    m.zoomToCountry = (country) ->
-      #console.log 'mapper:zoomToCountry', m.overlay_map
+    # TODO: this needs checking and reviewing.
+    m.zoomToCountry = (country, init=no) ->
+      #console.log 'mapper:zoomToCountry', init
+      # If the base maps is not yet rendered...
+      # The overlay map is always re-rendered (with a different dataset).
+      if init
+        m.base_map = renderBaseMap()
       # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
+      m.overlay_map = renderOverlay country
       if country
         el = m.base_map.filter (f, i) ->
           f.id == country
         # Highlight the selected country
         el.style("fill", "#860000")
-        # 
-        #m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px")
-        #m.overlay_map.selectAll("circle").each ->
-        #console.log 'ssdsdsdsdsd', @
         d = el.data()[0]
         if d and centered isnt d
           c.centroid = c.path.centroid(d)
           bounds = c.path.bounds(d)
-          k = 5
+          k = 6
           x = -c.centroid[0] + c.width / 2 / k
           y = -c.centroid[1] + c.height / 2 / k
           centered = d
