@@ -87,7 +87,7 @@ define [
 
     country: (code) ->
       @deferred.done (ds, wr) =>
-        console.log "router:country", code, @world_map.rendered
+        #console.log "router:country", code, @world_map.rendered
 
         if not @world_map.rendered
           @world_map.render [ds, wr, code]

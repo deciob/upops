@@ -51,28 +51,23 @@ define(['underscore'], function(_) {
       }).attr("d", c.path).attr("class", "country");
     };
     renderOverlay = function(country) {
-      var dataset, join;
+      var cities, dataset, setEl;
       if (country == null) {
         country = false;
       }
       if (!c.data.overlay) {
         return;
       }
-      join = function(dataset) {
-        var cities;
-        cities = c.circle_g.selectAll("circle").data(dataset);
-        cities.enter().append("circle").attr("r", 0).attr("cx", function(d, i) {
+      setEl = function(el) {
+        return el.attr("r", 0).attr("cx", function(d, i) {
           return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
         }).attr("cy", function(d, i) {
           return c.projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1];
         }).attr("id", function(d, i) {
           return "c_" + d._id;
-        }).attr("class", function(d, i) {
-          return d.iso_a2;
         }).transition().duration(2000).attr("r", function(d) {
           return circleDimension(d.POP1950);
         });
-        return cities.exit().remove();
       };
       if (country) {
         dataset = c.data.overlay.where({
@@ -86,7 +81,12 @@ define(['underscore'], function(_) {
       if (!c.circle_g) {
         c.circle_g = c.svg.append("g").attr("id", "cities_container");
       }
-      join(dataset.toJSON());
+      cities = c.circle_g.selectAll("circle").data(dataset.toJSON());
+      cities.each(function(d, i) {
+        return setEl(d3.select(this));
+      });
+      setEl(cities.enter().append("circle"));
+      cities.exit().remove();
       return c.circle_g;
     };
     centreMap = function(bounds, centroid, path) {
@@ -145,7 +145,7 @@ define(['underscore'], function(_) {
         if (d && centered !== d) {
           c.centroid = c.path.centroid(d);
           bounds = c.path.bounds(d);
-          k = 6;
+          k = 7;
           x = -c.centroid[0] + c.width / 2 / k;
           y = -c.centroid[1] + c.height / 2 / k;
           centered = d;

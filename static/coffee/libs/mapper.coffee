@@ -61,48 +61,38 @@ define [
     renderOverlay = (country=no) ->  #svg, path, 
       #console.log "mapper:renderOverlay", country, c.data.overlay
       unless c.data.overlay then return
-      join = (dataset) ->
-        # DATA JOIN
-        cities = c.circle_g.selectAll("circle")
-          .data dataset
-        # UPDATE
-        #cities.attr("class", "update");
-        # ENTER
-        #console.log 'before enter'
-        cities.enter().append("circle")
-          .attr("r", 0)
-          .attr("cx", (d, i) ->
-            c.projection([
-              d.geometry.coordinates[0],
-              d.geometry.coordinates[1]])[0])
-          .attr("cy", (d, i) -> 
-            c.projection([
-              d.geometry.coordinates[0],
-              d.geometry.coordinates[1]])[1])
-          .attr("id", (d, i) -> 
-            "c_#{d._id}")
-          .attr("class", (d, i) -> d.iso_a2)
-          .transition()
-          .duration(2000)
-          .attr("r", (d) -> circleDimension(d.POP1950)) #TODO: remove hard-coded
-        # EXIT
-        #console.log 'exit', dataset.toJSON()
-        cities.exit().remove()
-
+      setEl = (el) ->
+        el
+        .attr("r", 0)
+        .attr("cx", (d, i) ->
+          c.projection([
+            d.geometry.coordinates[0],
+            d.geometry.coordinates[1]])[0])
+        .attr("cy", (d, i) -> 
+          c.projection([
+            d.geometry.coordinates[0],
+            d.geometry.coordinates[1]])[1])
+        .attr("id", (d, i) -> "c_#{d._id}")
+        #.attr("class", (d, i) -> d.iso_a2)
+        .transition()
+        .duration(2000)
+        .attr("r", (d) -> circleDimension(d.POP1950))
       if country
         dataset = c.data.overlay.where
           rows: (row) ->
             row["iso_a2"] == country
       else
         dataset = c.data.overlay
-      #console.log 'dataset', dataset.toJSON()
-      # TODO: not convinced here about the best way to do this.
       unless c.circle_g
         c.circle_g = c.svg.append("g").attr("id", "cities_container")
-      #console.log 'before join'
-      join dataset.toJSON()
-
-      
+      # DATA JOIN
+      cities = c.circle_g.selectAll("circle").data dataset.toJSON()
+      # UPDATE
+      cities.each (d, i) -> setEl d3.select(@)
+      # ENTER
+      setEl cities.enter().append("circle")
+      # EXIT
+      cities.exit().remove()
       # Return the overlay.
       c.circle_g
 
@@ -146,7 +136,7 @@ define [
 
     # TODO: this needs checking and reviewing.
     m.zoomToCountry = (country, init=no) ->
-      #console.log 'mapper:zoomToCountry', init
+      #console.log 'mapper:zoomToCountry', country, init
       # If the base maps is not yet rendered...
       # The overlay map is always re-rendered (with a different dataset).
       if init
@@ -163,7 +153,7 @@ define [
         if d and centered isnt d
           c.centroid = c.path.centroid(d)
           bounds = c.path.bounds(d)
-          k = 6
+          k = 7
           x = -c.centroid[0] + c.width / 2 / k
           y = -c.centroid[1] + c.height / 2 / k
           centered = d
