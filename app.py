@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 app = Flask(__name__)
 #app.config.from_object('app.default_settings')
-app.config.from_envvar('APPLICATION_SETTINGS')
+#app.config.from_envvar('APPLICATION_SETTINGS')
 
 #app.debug = True
 
@@ -21,6 +21,6 @@ def home():
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
-    # app.debug = True
+    app.debug = True
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
