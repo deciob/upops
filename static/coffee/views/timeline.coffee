@@ -1,9 +1,10 @@
 define [
+  'd3'
   'jquery_ui'
   'backbone'
   'libs/utils'
   'text!templates/timeline.html'
-], ($, Backbone, utils, template) ->
+], (d3, $, Backbone, utils, template) ->
   'use strict'
 
 

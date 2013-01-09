@@ -1,6 +1,9 @@
 define [
+  'd3'
+  'projection'
+  'topojson'
   'underscore'
-], (_) ->
+], (d3, projection, topojson, _) ->
   'use strict'
 
   # Pattern from:

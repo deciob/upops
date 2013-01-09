@@ -9,20 +9,17 @@
     <link rel="stylesheet" href="static/css/vendor/jquery-ui-1.9.2.custom.min.css" media="screen" />
     <link rel="stylesheet" href="static/css/vendor/bootstrap-responsive.min.css" media="screen" />
     <link rel="stylesheet" href="static/css/main.css" media="screen" />
-    <!--<link rel="stylesheet" href="static/css/reset.css">-->
-    <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <script src="static/js/vendor/less-1.1.3.min.js"></script>
-    <script src="static/js/vendor/require-2.1.1.js"></script>
     
-    {# <script src="http://d3js.org/d3.v3.min.js"></script> #}
-    <script src="static/js/vendor/d3.js"></script>
-    <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
-    <script src="http://d3js.org/topojson.v0.min.js"></script>
+    
+    {% if config.DEBUG %}
+    <script src="static/js/vendor/require-2.1.1.js"></script>
+    {% else %}
+    <script src="static/dist/app-rjs.min.js"></script>
+    {% endif %}
+
     
     <script>
-
+    {% if config.DEBUG %}
         requirejs.config({
 
             // The path where your JavaScripts are located
@@ -38,7 +35,10 @@
                 moment: 'vendor/miso-0.4.0/lib/moment',
                 miso: 'vendor/miso-0.4.0/miso.ds.0.4.0',
                 backbone: 'vendor/backbone',
-                text: 'vendor/text-2.0.3'
+                text: 'vendor/text-2.0.3',
+                d3: 'vendor/d3',
+                projection: 'vendor/projection',
+                topojson: 'vendor/topojson'
 
             },
             // Underscore and asevented do not AMD-capable per default,
@@ -72,10 +72,20 @@
                 backbone: {
                     deps: ['jquery', 'underscore'],
                     exports: 'Backbone'
+                },
+                d3: {
+                    exports: 'd3'
+                },
+                projection: {
+                    exports: 'projection'
+                },
+                topojson: {
+                    exports: 'topojson'
                 }
             }
 
         });
+    {% endif %}
 
 
         // Bootstrap the application
