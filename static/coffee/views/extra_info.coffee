@@ -2,7 +2,7 @@ define [
   'backbone'
   'models/world_info_model'
   'libs/utils'
-  'text!templates/world_info.html'
+  'text!templates/extra_info.html'
 ], (Backbone, WorldInfoModel, utils, template) ->
   'use strict'
 
@@ -17,7 +17,7 @@ define [
 
   WorldInfo = Backbone.View.extend(
 
-    el: "#world_info"
+    el: "#extra_info"
     template: _.template template#, {model: @model.toJSON()}
 
     initialize: (options) ->

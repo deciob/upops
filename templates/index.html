@@ -105,28 +105,21 @@
 </head>
 <body>
 
-    <div id="wrap">
-        <header id="top" class="row"></header>
-        <div class="row-fluid">
-            <div class="span1"></div>
-            <article class="span6" id="world_map" ></article>
-            {#<article class="span6" id="country_map"></article>#}
-            <section class="span4" id="timeline"></section>
-            <div class="span1"></div>
-        </div>
-    
-        {#
-        <div class="row">
-            <article id="country_map" class="span8" style="display: none;">
-            </article>
-            <section id="country_info" class="span4" style="display: none;">
-            </section>
-        </div>
-        #}
+    <header id="top" class="row">
+        <section id="app_title" class="span7"></section>
+        <section id="country_picker" class="span5"></section>
+    </header>
+    <div class="row-fluid">
+        <article id="map" class="span7">
+            <section id="map_title"></section>
+            <section id="map_viz"></section>
+            <section id="map_legend"></section>
+            <section id="navigation"></section>
+        </article>
+        <section id="timeline" class="span5"></section>
     </div>
 
-    
-    <article id="world_info"></article>
+    <article id="extra_info"></article>
 
 </body>
 </html>

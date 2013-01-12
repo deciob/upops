@@ -109,7 +109,7 @@ define [
     # It has an optional country (code) parameter in case the app 
     # is opened from a country specific url.
     m = (country=no) ->
-      #console.log 'mapper:m', country
+      console.log 'mapper:m'
       # SVG container for the whole map (base map and cities map)
       c.svg = d3.select(c.el)
         .append("svg").attr("width", c.width).attr("height", c.height)

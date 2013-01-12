@@ -14,7 +14,7 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'views/base', 'text!templates/w
       return WorldMap.__super__.constructor.apply(this, arguments);
     }
 
-    WorldMap.prototype.el = "#world_map";
+    WorldMap.prototype.el = "#map";
 
     WorldMap.prototype.initialize = function(options) {
       WorldMap.__super__.initialize.call(this, options);

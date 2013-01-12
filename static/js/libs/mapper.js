@@ -101,6 +101,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       if (country == null) {
         country = false;
       }
+      console.log('mapper:m');
       c.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);

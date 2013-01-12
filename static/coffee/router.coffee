@@ -2,22 +2,19 @@ define [
   'backbone'
   'libs/view_manager'
   'libs/geojson_miso_parser'
-  'views/world_map'
-  'views/world_info'
-  'views/country_map'
-  'views/country_info'
-  'views/top'
-  'views/timeline'
-], (Backbone, ViewManager, GeoJsonParser, WorldMap, WorldInfo, CountryMap, CountryViz, Top, Timeline) ->
+  'views/main_view'
+  'models/country_model'
+  'libs/utils'
+], (Backbone, ViewManager, GeoJsonParser, MainView, CountryModel, utils) ->
   'use strict'
 
 
   Backbone.Router.extend(
 
     routes:
-      "": "world"
-      "world/": "world"
-      "country/:code/": "country"
+      #"": "world"
+      "country(/:code)(/:year)/": "country"
+      #"country/:code/": "country"
 
     options:
       # Used within the custom Miso parser: GeoJsonParser
@@ -44,60 +41,46 @@ define [
         "Urban_Aggl"]
 
     # For this application we have 2 datasets.
-    # `world` is just some geojson data for d3 to create a world base map.
-    # `dataset` contains a population timeseries for major world cities.
+    # `world_geo` is geojson data only used in d3 to create a world base map. 
+    # `dataset` contains a population time-series for major world cities.
     initialize: ->
-      @dispatcher = _.clone(Backbone.Events)
-      options = {dispatcher: @dispatcher}
-      @world_map = new WorldMap({dispatcher: @dispatcher})
-      #@country_map = new CountryMap({dispatcher: @dispatcher})
-      #@mapViewManager = new Backbone.ViewManager(options, @world_map, @country_map)
-      
-      # data initialization. 
-      dataset = new Miso.Dataset(
+      #@dispatcher = _.clone(Backbone.Events)
+      # data initialization.
+      world_geo = $.ajax "static/data/topo_world.json"
+      # `cities_dataset` is the main data repository for the application.
+      cities_dataset = new Miso.Dataset(
         options: @options
         url: "static/data/urban_agglomerations.geojson"
         parser : GeoJsonParser
       )
-      world = $.ajax "static/data/topo_world.json"
-      @deferred = _.when(dataset.fetch(), world)
-      @deferred.done (ds, wr) =>
-        #console.log "onDataLoad", @, arguments, 'kk', a, b
-        # The top view for now stays the same, independently from the routing.
-        top = new Top({dispatcher: @dispatcher})
-        top.render(ds)
-        timeline = new Timeline({dispatcher: @dispatcher})
-        timeline.render(arguments[0])
-        world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
-        world_info.render()
-        # Lets tell the world the data is here!
-        @trigger 'onDataLoad', ds, wr
+      @country_model = new CountryModel()
+      @deferred = _.when(world_geo, cities_dataset.fetch())
+      @deferred.done (wg, cd) =>
+        #console.log "onDataLoad", @, wr, cd
+        options = 
+          #dispatcher: @dispatcher
+          model: @country_model
+          country_list: utils.getCountryList(cd)
+          world_geo: wg
+          cities_dataset: cd
+        @main_view = new MainView(options)
+        ## Lets tell the world the data is here!
+        ##@trigger 'onDataLoad', cd, wg
   
-    world: ->
-      @deferred.done (ds, wr) =>
-        if not @world_map.rendered
-          @world_map.render [ds, wr]
-        @world_map.zoomToCountry()
-        #console.log 'world:'
-        #world_map = new WorldMap({dispatcher: @dispatcher})
-        #@world_map.trigger 'activate', @world_map, arguments
-        #@mapViewManager.activate @world_map, [ds, wr]
-        #world_info = new WorldInfo({dispatcher: @dispatcher, default_year: 1950})
-        #world_info.render()
+    world: (year) ->
+      year = year or 1955
+      @deferred.done =>
+        @main_view.render("world", year)
+        #if not @world_map.rendered
+        #  @world_map.render [cd, wg]
+        #@world_map.zoomToCountry()
 
-    country: (code) ->
-      @deferred.done (ds, wr) =>
+    country: (code, year) ->
+      code = code or "world"
+      year = year or 1955
+      @country_model.set {country: code, year: year}
+      @deferred.done =>
         #console.log "router:country", code, @world_map.rendered
-
-        if not @world_map.rendered
-          @world_map.render [ds, wr, code]
-        else
-          @world_map.zoomToCountry code
-        #@dispatcher.trigger 'onNavigation:country', code
-        #console.log 'country:', code
-        #@country_map .trigger 'activate', @country_map, code#arguments
-        #@mapViewManager.activate @country_map, [ds, wr, code]
-        #@dispatcher.trigger 'onNavigation:country', code
+        @main_view.render()
   
-    
   )

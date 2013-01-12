@@ -3,7 +3,7 @@
 define(['underscore'], function(_) {
   'use strict';
 
-  var getMiddleHeight, getScale, getTranslation, utils;
+  var getCountryList, getMiddleHeight, getScale, getTranslation, utils;
   getMiddleHeight = function() {
     var document_h, footer, footer_h, header, header_h;
     header = $("#top");
@@ -47,9 +47,23 @@ define(['underscore'], function(_) {
       y: y_scale
     };
   };
+  getCountryList = function(cd) {
+    var countries;
+    countries = [];
+    cd.each(function(row) {
+      return countries.push({
+        label: row.Country,
+        value: row.iso_a2
+      });
+    });
+    return _.uniq(countries, false, function(el) {
+      return el.value;
+    });
+  };
   return utils = {
     getMiddleHeight: getMiddleHeight,
     getScale: getScale,
-    getTranslation: getTranslation
+    getTranslation: getTranslation,
+    getCountryList: getCountryList
   };
 });
