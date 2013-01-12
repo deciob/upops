@@ -45,7 +45,7 @@ define [
         y_scale
 
     renderBaseMap = ->
-      #console.log "mapper:renderBaseMap", path.bounds()
+      #console.log "mapper:renderBaseMap"
       unless c.data.base then return
       #### Heroku hack!!!! --- TODO: find out why!!! ####
       if typeof c.data.base == "string"  # on Heroku
@@ -62,7 +62,7 @@ define [
         .attr("class", "country")
 
     renderOverlay = (country=no) ->  #svg, path, 
-      #console.log "mapper:renderOverlay", country, c.data.overlay
+      console.log "mapper:renderOverlay", country, c.data.overlay
       unless c.data.overlay then return
       setEl = (el) ->
         el
@@ -108,8 +108,8 @@ define [
 
     # It has an optional country (code) parameter in case the app 
     # is opened from a country specific url.
-    m = (country=no) ->
-      console.log 'mapper:m'
+    m = (country) ->
+      console.log 'mapper:m', country
       # SVG container for the whole map (base map and cities map)
       c.svg = d3.select(c.el)
         .append("svg").attr("width", c.width).attr("height", c.height)
@@ -118,7 +118,7 @@ define [
       c.projection.scale(scale)
       c.projection.translate([trans.x, trans.y])
       c.path = d3.geo.path().projection(c.projection)
-      if country  # if the app is initialized with a country...
+      if country != "world"  # if the app is initialized with a country...
         m.zoomToCountry country, yes
       else
         m.base_map = renderBaseMap() #(svg, c.path)
@@ -147,7 +147,7 @@ define [
       # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
       m.overlay_map = renderOverlay country
-      if country
+      if country != "world"
         el = m.base_map.filter (f, i) ->
           f.id == country
         # Highlight the selected country

@@ -4,6 +4,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/main
   'use strict';
   return Backbone.Router.extend({
     routes: {
+      "": "country",
       "country(/:code)(/:year)/": "country"
     },
     options: {
@@ -25,29 +26,22 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/main
         options = {
           model: _this.country_model,
           country_list: utils.getCountryList(cd),
-          world_geo: wg,
+          world_geo: wg[0],
           cities_dataset: cd
         };
         return _this.main_view = new MainView(options);
-      });
-    },
-    world: function(year) {
-      var _this = this;
-      year = year || 1955;
-      return this.deferred.done(function() {
-        return _this.main_view.render("world", year);
       });
     },
     country: function(code, year) {
       var _this = this;
       code = code || "world";
       year = year || 1955;
-      this.country_model.set({
-        country: code,
-        year: year
-      });
       return this.deferred.done(function() {
-        return _this.main_view.render();
+        console.log('@@@@@');
+        return _this.country_model.set({
+          country: code,
+          year: year
+        });
       });
     }
   });

@@ -55,6 +55,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       if (country == null) {
         country = false;
       }
+      console.log("mapper:renderOverlay", country, c.data.overlay);
       if (!c.data.overlay) {
         return;
       }
@@ -98,17 +99,14 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
     };
     m = function(country) {
       var scale, trans;
-      if (country == null) {
-        country = false;
-      }
-      console.log('mapper:m');
+      console.log('mapper:m', country);
       c.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
       c.projection.translate([trans.x, trans.y]);
       c.path = d3.geo.path().projection(c.projection);
-      if (country) {
+      if (country !== "world") {
         return m.zoomToCountry(country, true);
       } else {
         m.base_map = renderBaseMap();
@@ -137,7 +135,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       }
       m.base_map.style("fill", "#FFFDF7");
       m.overlay_map = renderOverlay(country);
-      if (country) {
+      if (country !== "world") {
         el = m.base_map.filter(function(f, i) {
           return f.id === country;
         });

@@ -30,6 +30,8 @@ define [
       # Independent from routing, so rendering immediately and once.
       #@views.app_title.render()
       @views.country_picker.render()
+      @model.on 'change', (model) =>
+        @render()
 
     render: ->
       console.log "MainView:render"

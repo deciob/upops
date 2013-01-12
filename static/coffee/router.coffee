@@ -12,7 +12,7 @@ define [
   Backbone.Router.extend(
 
     routes:
-      #"": "world"
+      "": "country"
       "country(/:code)(/:year)/": "country"
       #"country/:code/": "country"
 
@@ -61,26 +61,19 @@ define [
           #dispatcher: @dispatcher
           model: @country_model
           country_list: utils.getCountryList(cd)
-          world_geo: wg
+          world_geo: wg[0]
           cities_dataset: cd
         @main_view = new MainView(options)
         ## Lets tell the world the data is here!
         ##@trigger 'onDataLoad', cd, wg
-  
-    world: (year) ->
-      year = year or 1955
-      @deferred.done =>
-        @main_view.render("world", year)
-        #if not @world_map.rendered
-        #  @world_map.render [cd, wg]
-        #@world_map.zoomToCountry()
 
     country: (code, year) ->
       code = code or "world"
       year = year or 1955
-      @country_model.set {country: code, year: year}
+      #@country_model.set {country: code, year: year}
       @deferred.done =>
-        #console.log "router:country", code, @world_map.rendered
-        @main_view.render()
+        console.log '@@@@@'
+        @country_model.set {country: code, year: year}
+        #@main_view.render()
   
   )

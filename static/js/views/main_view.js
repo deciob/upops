@@ -15,7 +15,8 @@ define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_title'
     }
 
     MainView.prototype.initialize = function(options) {
-      var map_viz_options, model;
+      var map_viz_options, model,
+        _this = this;
       model = options.model;
       map_viz_options = {
         model: model,
@@ -25,7 +26,10 @@ define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_title'
       this.views = {};
       this.views.country_picker = new CountryPicker(options);
       this.views.map_viz = new MapViz(map_viz_options);
-      return this.views.country_picker.render();
+      this.views.country_picker.render();
+      return this.model.on('change', function(model) {
+        return _this.render();
+      });
     };
 
     MainView.prototype.render = function() {

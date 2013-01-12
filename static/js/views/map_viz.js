@@ -17,24 +17,16 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
     MapViz.prototype.el = "#map_viz";
 
     MapViz.prototype.initialize = function(options) {
-      var model,
-        _this = this;
       this.rendered = false;
-      model = options.model;
+      this.model = options.model;
       this.world_geo = options.world_geo;
-      this.cities_dataset = options.cities_dataset;
-      this.map = mapper;
-      model.on('change:country', function(model, country) {
-        return _this.zoomToCountry(country);
-      });
-      return model.on('change:year', function(model, year) {
-        return _this.updateChart(year);
-      });
+      return this.cities_dataset = options.cities_dataset;
     };
 
     MapViz.prototype.render = function() {
+      var country, year;
       if (!this.rendered) {
-        this.map();
+        this.map = mapper();
         this.map.el(this.el);
         this.map.data({
           base: this.world_geo,
@@ -42,7 +34,17 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
         });
         this.map.width(this.$el.innerWidth());
         this.map.height(utils.getMiddleHeight());
+        this.map(this.model.get("country"));
         return this.rendered = true;
+      } else {
+        country = this.model.get("country");
+        year = this.model.get("year");
+        if (country) {
+          this.zoomToCountry(country);
+        }
+        if (year) {
+          return this.updateChart(year);
+        }
       }
     };
 
@@ -50,8 +52,10 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
       return this.map.updateOverlay(year);
     };
 
-    MapViz.prototype.zoomToCountry = function() {
-      return this.map.zoomToCountry();
+    MapViz.prototype.zoomToCountry = function(country) {
+      var _ref;
+      console.log("MapViz:zoomToCountry", this.model.get("country"));
+      return (_ref = this.map) != null ? _ref.zoomToCountry(country) : void 0;
     };
 
     return MapViz;
