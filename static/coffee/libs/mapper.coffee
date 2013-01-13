@@ -10,6 +10,8 @@ define [
   # http://bost.ocks.org/mike/chart/
   # and:
   # http://macwright.org/2012/06/04/the-module-pattern.html
+
+  # TODO: need some good refactoring!
   
   mapper = (conf) ->
 
@@ -45,7 +47,7 @@ define [
         y_scale
 
     renderBaseMap = ->
-      #console.log "mapper:renderBaseMap"
+      #console.log "mapper:renderBaseMap -- This should only bee called once!"
       unless c.data.base then return
       #### Heroku hack!!!! --- TODO: find out why!!! ####
       if typeof c.data.base == "string"  # on Heroku
@@ -61,8 +63,31 @@ define [
         .attr("d", c.path)
         .attr("class", "country")
 
-    renderOverlay = (country=no) ->  #svg, path, 
-      console.log "mapper:renderOverlay", country, c.data.overlay
+    centreMap = (bounds, centroid, path) ->
+      #console.log "mapper:centreMap", bounds, centroid, c.width
+      scale = getScale(c.width, c.height)
+      trans = getTranslation(scale)
+      c.projection.scale(scale)
+      c.projection.translate([trans.x, trans.y])
+
+    m = (country) ->
+      #console.log 'mapper:m', country
+      # SVG container for the whole map (base map and cities map)
+      c.svg = d3.select(c.el)
+        .append("svg").attr("width", c.width).attr("height", c.height)
+      scale = getScale(c.width, c.height)
+      trans = getTranslation(scale)
+      c.projection.scale(scale)
+      c.projection.translate([trans.x, trans.y])
+      c.path = d3.geo.path().projection(c.projection)
+      m.base_map = renderBaseMap()
+      m.overlay_map = m.renderOverlay(country)
+      # If the app is initialized with a country...
+      if country != "world"  
+        m.zoomToCountry country
+
+    m.renderOverlay = (country) ->  #svg, path, 
+      #console.log "mapper:renderOverlay", country, c.data.overlay
       unless c.data.overlay then return
       setEl = (el) ->
         el
@@ -80,12 +105,13 @@ define [
         .transition()
         .duration(2000)
         .attr("r", (d) -> circleDimension(d.POP1950))
-      if country
+      if country == "world"
+        dataset = c.data.overlay
+      else
         dataset = c.data.overlay.where
           rows: (row) ->
             row["iso_a2"] == country
-      else
-        dataset = c.data.overlay
+        
       unless c.circle_g
         c.circle_g = c.svg.append("g").attr("id", "cities_container")
       # DATA JOIN
@@ -98,31 +124,6 @@ define [
       cities.exit().remove()
       # Return the overlay.
       c.circle_g
-
-    centreMap = (bounds, centroid, path) ->
-      #console.log "mapper:centreMap", bounds, centroid, c.width
-      scale = getScale(c.width, c.height)
-      trans = getTranslation(scale)
-      c.projection.scale(scale)
-      c.projection.translate([trans.x, trans.y])
-
-    # It has an optional country (code) parameter in case the app 
-    # is opened from a country specific url.
-    m = (country) ->
-      console.log 'mapper:m', country
-      # SVG container for the whole map (base map and cities map)
-      c.svg = d3.select(c.el)
-        .append("svg").attr("width", c.width).attr("height", c.height)
-      scale = getScale(c.width, c.height)
-      trans = getTranslation(scale)
-      c.projection.scale(scale)
-      c.projection.translate([trans.x, trans.y])
-      c.path = d3.geo.path().projection(c.projection)
-      if country != "world"  # if the app is initialized with a country...
-        m.zoomToCountry country, yes
-      else
-        m.base_map = renderBaseMap() #(svg, c.path)
-        m.overlay_map = renderOverlay() #(svg, c.path)
 
     m.updateOverlay = (year) ->
       #console.log 'mapper:updateOverlay', @, year
@@ -138,15 +139,10 @@ define [
       m
 
     # TODO: this needs checking and reviewing.
-    m.zoomToCountry = (country, init=no) ->
-      #console.log 'mapper:zoomToCountry', country, init
-      # If the base maps is not yet rendered...
-      # The overlay map is always re-rendered (with a different dataset).
-      if init
-        m.base_map = renderBaseMap()
+    m.zoomToCountry = (country) ->
       # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
-      m.overlay_map = renderOverlay country
+      #m.overlay_map = m.renderOverlay country
       if country != "world"
         el = m.base_map.filter (f, i) ->
           f.id == country

@@ -7,31 +7,37 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'text!templates/timeline.ht
   return Timeline = Backbone.View.extend({
     el: "#timeline",
     initialize: function(options) {
+      this.model = options.model;
+      this.year = this.model.get("year");
+      this.country = this.model.get("country");
+      this.cities_dataset = options.cities_dataset;
       this.m = [40, 80, 40, 40];
-      return this.dispatcher = options.dispatcher;
+      return this.render();
     },
-    render: function(args) {
+    render: function() {
       this.dimensions = this._getViewDimensions();
-      $(this.el).height(this.dimensions.height * .8);
+      this.$el.height(this.dimensions.height * .8);
       template = _.template(template);
       this.$el.html(template);
-      this.renderTimeseries(args);
+      this.renderTimeseries();
       return this.renderSlider();
     },
     renderSlider: function() {
       var self;
       self = this;
       return $("#slider").width(this.dimensions.width - this.m[1] - this.m[3]).css("left", this.m[3]).slider({
-        value: 100,
+        value: self.model.get('year'),
         min: 1950,
         max: 2025,
         step: 5,
-        slide: function(event, ui) {
-          return self.dispatcher.trigger('onSlide', ui.value);
+        stop: function(event, ui) {
+          return Backbone.history.navigate("country/" + (self.model.get('country')) + "/" + ui.value + "/", {
+            trigger: true
+          });
         }
       });
     },
-    renderTimeseries: function(dataset) {
+    renderTimeseries: function() {
       var buffer_zone, chart, count, el, h, line, m, parse, renderLine, svg, w, x, xAxis, y, yAxis;
       buffer_zone = 30;
       m = this.m;
@@ -77,7 +83,7 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'text!templates/timeline.ht
       chart = function(row) {
         return renderLine(row);
       };
-      return dataset.each(chart, this);
+      return this.cities_dataset.each(chart, this);
     },
     _getViewDimensions: function() {
       return {

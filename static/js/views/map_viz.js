@@ -17,45 +17,42 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
     MapViz.prototype.el = "#map_viz";
 
     MapViz.prototype.initialize = function(options) {
-      this.rendered = false;
       this.model = options.model;
       this.world_geo = options.world_geo;
-      return this.cities_dataset = options.cities_dataset;
+      this.cities_dataset = options.cities_dataset;
+      this.map = mapper();
+      this.map.el(this.el);
+      this.map.data({
+        base: this.world_geo,
+        overlay: this.cities_dataset
+      });
+      this.map.width(this.$el.innerWidth());
+      this.map.height(utils.getMiddleHeight());
+      return this.render();
     };
 
     MapViz.prototype.render = function() {
-      var country, year;
-      if (!this.rendered) {
-        this.map = mapper();
-        this.map.el(this.el);
-        this.map.data({
-          base: this.world_geo,
-          overlay: this.cities_dataset
-        });
-        this.map.width(this.$el.innerWidth());
-        this.map.height(utils.getMiddleHeight());
-        this.map(this.model.get("country"));
-        return this.rendered = true;
-      } else {
-        country = this.model.get("country");
-        year = this.model.get("year");
-        if (country) {
-          this.zoomToCountry(country);
-        }
-        if (year) {
-          return this.updateChart(year);
-        }
-      }
-    };
-
-    MapViz.prototype.updateChart = function(year) {
-      return this.map.updateOverlay(year);
+      var _this = this;
+      this.map(this.model.get("country"));
+      this.model.on('change:country', function(model, country) {
+        _this.updateChartCountry(country);
+        return _this.zoomToCountry(country);
+      });
+      return this.model.on('change:year', function(model, year) {
+        return _this.updateChartYear(year);
+      });
     };
 
     MapViz.prototype.zoomToCountry = function(country) {
-      var _ref;
-      console.log("MapViz:zoomToCountry", this.model.get("country"));
-      return (_ref = this.map) != null ? _ref.zoomToCountry(country) : void 0;
+      return this.map.zoomToCountry(country);
+    };
+
+    MapViz.prototype.updateChartCountry = function(country) {
+      return this.map.renderOverlay(country);
+    };
+
+    MapViz.prototype.updateChartYear = function(year) {
+      return this.map.updateOverlay(year);
     };
 
     return MapViz;

@@ -22,10 +22,10 @@ define [
     # Initializes the JQuery UI Autocomplete widget.
     setCountryPicker: ->
       self = @
-      $( "#country_tags" ).autocomplete({
+      $( "#country_tags" ).autocomplete
         source: self.country_list
         select: (evt, ui) ->
-          Backbone.history.navigate("country/#{ui.item.value}/", {trigger: true})
-      })
+          Backbone.history.navigate "country/#{ui.item.value}/", trigger: true
+
 
   )

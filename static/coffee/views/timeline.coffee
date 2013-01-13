@@ -13,17 +13,20 @@ define [
     el: "#timeline"
 
     initialize: (options) ->
-      #@setElement $(@el)
+      @model = options.model
+      @year = @model.get "year"
+      @country = @model.get "country"
+      @cities_dataset = options.cities_dataset
       # margin: top, right, bottom, left
       @m = [40, 80, 40, 40]
-      @dispatcher = options.dispatcher
+      @render()
   
-    render: (args) ->
+    render: ->
       @dimensions = @_getViewDimensions()
-      $(@el).height(@dimensions.height * .8)
+      @$el.height(@dimensions.height * .8)
       template = _.template template
       @$el.html template
-      @renderTimeseries(args)
+      @renderTimeseries()
       @renderSlider()
 
     renderSlider: ->
@@ -32,14 +35,23 @@ define [
       .width(@dimensions.width - @m[1] - @m[3])
       .css("left", @m[3])
       .slider
-        value: 100
+        value: self.model.get 'year'
         min: 1950
         max: 2025
         step: 5
-        slide: (event, ui) ->
-          self.dispatcher.trigger 'onSlide', ui.value
+        #slide: (event, ui) ->
+          # TODO: we are not navigating on this... 
+          # Slow, and interferes with other model events.
+          # TODO: use the year in the url for initial setting, 
+          # but then trigger false.
+          #self.dispatcher.trigger 'onSlide', ui.value
+          #console.log ui.value
+        stop: (event, ui) ->
+          Backbone.history.navigate(
+            "country/#{self.model.get 'country'}/#{ui.value}/", 
+            trigger: true)
 
-    renderTimeseries: (dataset) ->
+    renderTimeseries: ->
       # Copied from: http://bl.ocks.org/1166403
       buffer_zone = 30
       
@@ -112,8 +124,7 @@ define [
         #.attr("clip-path", "url(#clip)")
         .attr "d", line(values)
         #console.log values
-      
-
+    
       count = 0
       chart = (row) ->
         #console.log row
@@ -121,7 +132,7 @@ define [
         renderLine(row)
         #  count = 1
 
-      dataset.each(chart, @)
+      @cities_dataset.each(chart, @)
 
 
     _getViewDimensions: ->

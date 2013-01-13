@@ -14,9 +14,10 @@ define(['backbone'], function(Backbone) {
       return CountryModel.__super__.constructor.apply(this, arguments);
     }
 
-    CountryModel.prototype.country = "world";
-
-    CountryModel.prototype.year = 1950;
+    CountryModel.prototype.defaults = {
+      country: "world",
+      year: 1950
+    };
 
     return CountryModel;
 

@@ -2,19 +2,20 @@ define [
   'backbone'
   'libs/view_manager'
   'libs/geojson_miso_parser'
+  'views/app_title'
+  'views/country_picker'
   'views/main_view'
   'models/country_model'
   'libs/utils'
-], (Backbone, ViewManager, GeoJsonParser, MainView, CountryModel, utils) ->
+], (Backbone, ViewManager, GeoJsonParser, AppTitle, CountryPicker, MainView, CountryModel, utils) ->
   'use strict'
 
 
-  Backbone.Router.extend(
+  Backbone.Router.extend
 
     routes:
       "": "country"
       "country(/:code)(/:year)/": "country"
-      #"country/:code/": "country"
 
     options:
       # Used within the custom Miso parser: GeoJsonParser
@@ -44,7 +45,6 @@ define [
     # `world_geo` is geojson data only used in d3 to create a world base map. 
     # `dataset` contains a population time-series for major world cities.
     initialize: ->
-      #@dispatcher = _.clone(Backbone.Events)
       # data initialization.
       world_geo = $.ajax "static/data/topo_world.json"
       # `cities_dataset` is the main data repository for the application.
@@ -58,22 +58,20 @@ define [
       @deferred.done (wg, cd) =>
         #console.log "onDataLoad", @, wr, cd
         options = 
-          #dispatcher: @dispatcher
           model: @country_model
           country_list: utils.getCountryList(cd)
           world_geo: wg[0]
           cities_dataset: cd
+        # These 2 views do not respond to route changes:
+        app_title = new AppTitle options
+        app_title.render()
+        country_picker = new CountryPicker options      
+        country_picker.render()
+        # Grouping route views together:
         @main_view = new MainView(options)
-        ## Lets tell the world the data is here!
-        ##@trigger 'onDataLoad', cd, wg
-
+        
     country: (code, year) ->
       code = code or "world"
       year = year or 1955
-      #@country_model.set {country: code, year: year}
       @deferred.done =>
-        console.log '@@@@@'
         @country_model.set {country: code, year: year}
-        #@main_view.render()
-  
-  )

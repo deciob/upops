@@ -5,7 +5,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
 
   var mapper;
   return mapper = function(conf) {
-    var c, centreMap, circleDimension, defaults, getScale, getTranslation, m, renderBaseMap, renderOverlay;
+    var c, centreMap, circleDimension, defaults, getScale, getTranslation, m, renderBaseMap;
     defaults = {
       width: 960,
       height: 500,
@@ -50,12 +50,29 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
         return d.id;
       }).attr("d", c.path).attr("class", "country");
     };
-    renderOverlay = function(country) {
-      var cities, dataset, setEl;
-      if (country == null) {
-        country = false;
+    centreMap = function(bounds, centroid, path) {
+      var scale, trans;
+      scale = getScale(c.width, c.height);
+      trans = getTranslation(scale);
+      c.projection.scale(scale);
+      return c.projection.translate([trans.x, trans.y]);
+    };
+    m = function(country) {
+      var scale, trans;
+      c.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
+      scale = getScale(c.width, c.height);
+      trans = getTranslation(scale);
+      c.projection.scale(scale);
+      c.projection.translate([trans.x, trans.y]);
+      c.path = d3.geo.path().projection(c.projection);
+      m.base_map = renderBaseMap();
+      m.overlay_map = m.renderOverlay(country);
+      if (country !== "world") {
+        return m.zoomToCountry(country);
       }
-      console.log("mapper:renderOverlay", country, c.data.overlay);
+    };
+    m.renderOverlay = function(country) {
+      var cities, dataset, setEl;
       if (!c.data.overlay) {
         return;
       }
@@ -70,14 +87,14 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
           return circleDimension(d.POP1950);
         });
       };
-      if (country) {
+      if (country === "world") {
+        dataset = c.data.overlay;
+      } else {
         dataset = c.data.overlay.where({
           rows: function(row) {
             return row["iso_a2"] === country;
           }
         });
-      } else {
-        dataset = c.data.overlay;
       }
       if (!c.circle_g) {
         c.circle_g = c.svg.append("g").attr("id", "cities_container");
@@ -89,29 +106,6 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       setEl(cities.enter().append("circle"));
       cities.exit().remove();
       return c.circle_g;
-    };
-    centreMap = function(bounds, centroid, path) {
-      var scale, trans;
-      scale = getScale(c.width, c.height);
-      trans = getTranslation(scale);
-      c.projection.scale(scale);
-      return c.projection.translate([trans.x, trans.y]);
-    };
-    m = function(country) {
-      var scale, trans;
-      console.log('mapper:m', country);
-      c.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
-      scale = getScale(c.width, c.height);
-      trans = getTranslation(scale);
-      c.projection.scale(scale);
-      c.projection.translate([trans.x, trans.y]);
-      c.path = d3.geo.path().projection(c.projection);
-      if (country !== "world") {
-        return m.zoomToCountry(country, true);
-      } else {
-        m.base_map = renderBaseMap();
-        return m.overlay_map = renderOverlay();
-      }
     };
     m.updateOverlay = function(year) {
       d3.select(c.el).selectAll("circle").datum(function() {
@@ -125,16 +119,9 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       });
       return m;
     };
-    m.zoomToCountry = function(country, init) {
+    m.zoomToCountry = function(country) {
       var bounds, centered, d, el, k, x, y;
-      if (init == null) {
-        init = false;
-      }
-      if (init) {
-        m.base_map = renderBaseMap();
-      }
       m.base_map.style("fill", "#FFFDF7");
-      m.overlay_map = renderOverlay(country);
       if (country !== "world") {
         el = m.base_map.filter(function(f, i) {
           return f.id === country;
