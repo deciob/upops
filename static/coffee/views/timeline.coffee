@@ -8,12 +8,14 @@ define [
   'use strict'
 
 
-  Timeline = Backbone.View.extend(
+  #Timeline = Backbone.View.extend(
+  class Timeline extends Backbone.View
 
     el: "#timeline"
 
     initialize: (options) ->
       @model = options.model
+      @dispatcher = options.dispatcher
       @year = @model.get "year"
       @country = @model.get "country"
       @cities_dataset = options.cities_dataset
@@ -28,6 +30,11 @@ define [
       @$el.html template
       @renderTimeseries()
       @renderSlider()
+      @model.on 'change:year', (model, year) =>
+        @updateYear year
+
+    updateYear: (year) =>
+      $("#slider").slider "value", year
 
     renderSlider: ->
       self = @
@@ -39,12 +46,12 @@ define [
         min: 1950
         max: 2025
         step: 5
-        #slide: (event, ui) ->
+        slide: (event, ui) ->
           # TODO: we are not navigating on this... 
           # Slow, and interferes with other model events.
           # TODO: use the year in the url for initial setting, 
           # but then trigger false.
-          #self.dispatcher.trigger 'onSlide', ui.value
+          self.dispatcher.trigger 'onSlide', ui.value
           #console.log ui.value
         stop: (event, ui) ->
           Backbone.history.navigate(
@@ -179,4 +186,4 @@ define [
       #  svg.append("svg:text").attr("x", w - 6).attr("y", h - 6).attr("text-anchor", "end").text values[0].symbol
 
   
-  )
+  

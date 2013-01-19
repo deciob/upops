@@ -45,6 +45,7 @@ define [
     # `world_geo` is geojson data only used in d3 to create a world base map. 
     # `dataset` contains a population time-series for major world cities.
     initialize: ->
+      @dispatcher = _.clone(Backbone.Events)
       # data initialization.
       world_geo = $.ajax "static/data/topo_world.json"
       # `cities_dataset` is the main data repository for the application.
@@ -62,6 +63,7 @@ define [
           country_list: utils.getCountryList(cd)
           world_geo: wg[0]
           cities_dataset: cd
+          dispatcher: @dispatcher
         # These 2 views do not respond to route changes:
         app_title = new AppTitle options
         app_title.render()
@@ -74,4 +76,7 @@ define [
       code = code or "world"
       year = year or 1955
       @deferred.done =>
-        @country_model.set {country: code, year: year}
+        #console.log year
+        #@country_model.set {country: code, year: year}
+        @country_model.set "country", code
+        @country_model.set "year", year

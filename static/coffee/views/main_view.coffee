@@ -14,15 +14,10 @@ define [
   class MainView extends Backbone.View
 
     initialize: (options) ->
-      model = options.model
-      viz_options = 
-        model: model
-        world_geo: options.world_geo
-        cities_dataset: options.cities_dataset
       @views = {}
-      @views.map_viz = new MapViz viz_options
-      #@views.map_legend = new MapLegend options
-      @views.timeline = new Timeline viz_options
+      @views.map_viz = new MapViz options
+      @views.map_title = new MapTitle options
+      @views.timeline = new Timeline options
       #@views.extra_info = new ExtraInfo options
       # Independent from routing, so rendering immediately and once.
       #@model.on 'change', (model) =>

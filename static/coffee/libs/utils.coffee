@@ -33,9 +33,9 @@ define [
 
   # Get a unique country list from the 'country_dataset' Miso Dataset.
   getCountryList = (cd) ->
-    countries = []
+    countries = [{value: "world", code: "world"}]
     cd.each (row) -> 
-      countries.push {label: row.Country, value: row.iso_a2}
+      countries.push {value: row.Country, code: row.iso_a2}
     _.uniq countries, false, (el) -> el.value
 
   utils = 

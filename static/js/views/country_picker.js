@@ -21,7 +21,9 @@ define(['jquery_ui', 'backbone', 'text!templates/country_picker.html'], function
       return $("#country_tags").autocomplete({
         source: self.country_list,
         select: function(evt, ui) {
-          return Backbone.history.navigate("country/" + ui.item.value + "/", {
+          var year;
+          year = self.model.get("year");
+          return Backbone.history.navigate("country/" + ui.item.code + "/" + year + "/", {
             trigger: true
           });
         }

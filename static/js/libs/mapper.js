@@ -5,7 +5,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
 
   var mapper;
   return mapper = function(conf) {
-    var c, centreMap, circleDimension, defaults, getScale, getTranslation, m, renderBaseMap;
+    var c, centreMap, circleDimension, defaults, getDataset, getScale, getTranslation, m, renderBaseMap;
     defaults = {
       width: 960,
       height: 500,
@@ -13,6 +13,21 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
     };
     c = _.extend(defaults, conf);
     circleDimension = d3.scale.linear().domain([1000, 38661000]).range([2, 30]);
+    /* 
+    Private functions
+    */
+
+    getDataset = function(country) {
+      if (country === "world") {
+        return c.data.overlay;
+      } else {
+        return c.data.overlay.where({
+          rows: function(row) {
+            return row["iso_a2"] === country;
+          }
+        });
+      }
+    };
     getScale = function(width, height) {
       var factor, map_proportion, view_proportion;
       map_proportion = 500 / 960;
@@ -46,7 +61,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       }
       world = base.objects.world;
       graticule = d3.geo.graticule();
-      return c.svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
+      return m.svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
         return d.id;
       }).attr("d", c.path).attr("class", "country");
     };
@@ -57,21 +72,25 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       c.projection.scale(scale);
       return c.projection.translate([trans.x, trans.y]);
     };
-    m = function(country) {
+    /* 
+    Public functions
+    */
+
+    m = function(country, year) {
       var scale, trans;
-      c.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
+      m.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
       c.projection.translate([trans.x, trans.y]);
       c.path = d3.geo.path().projection(c.projection);
       m.base_map = renderBaseMap();
-      m.overlay_map = m.renderOverlay(country);
+      m.overlay_map = m.renderOverlay(country, year);
       if (country !== "world") {
         return m.zoomToCountry(country);
       }
     };
-    m.renderOverlay = function(country) {
+    m.renderOverlay = function(country, year) {
       var cities, dataset, setEl;
       if (!c.data.overlay) {
         return;
@@ -84,20 +103,12 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
         }).attr("id", function(d, i) {
           return "c_" + d._id;
         }).transition().duration(2000).attr("r", function(d) {
-          return circleDimension(d.POP1950);
+          return circleDimension(d["POP" + year]);
         });
       };
-      if (country === "world") {
-        dataset = c.data.overlay;
-      } else {
-        dataset = c.data.overlay.where({
-          rows: function(row) {
-            return row["iso_a2"] === country;
-          }
-        });
-      }
+      dataset = getDataset(country);
       if (!c.circle_g) {
-        c.circle_g = c.svg.append("g").attr("id", "cities_container");
+        c.circle_g = m.svg.append("g").attr("id", "cities_container");
       }
       cities = c.circle_g.selectAll("circle").data(dataset.toJSON());
       cities.each(function(d, i) {
@@ -107,7 +118,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       cities.exit().remove();
       return c.circle_g;
     };
-    m.updateOverlay = function(year) {
+    m.updateYear = function(year) {
       d3.select(c.el).selectAll("circle").datum(function() {
         var id, pop, selection;
         selection = d3.select(this);

@@ -19,6 +19,7 @@ define [
 
     initialize: (options) ->
       @model = options.model
+      @dispatcher = options.dispatcher
       @world_geo = options.world_geo
       @cities_dataset = options.cities_dataset
       @map = mapper()
@@ -32,25 +33,27 @@ define [
     # After this the map will be updated using d3 data-joins.
     render: ->
       # Render the map.
-      @map @model.get("country")
+      @map @model.get("country"), @model.get("year")
       # Set the callbacks.
       @model.on 'change:country', (model, country) =>
         # The order here is relevant!
-        # Zoom to country also updates the overlay style. If the overlay is 
-        # updated after the zoomToCountry, then it will be not re-styled in
-        # accordance to the new zoom level.
+        # Zoom to country also updates the overlay (city circles) style. 
+        # If the overlay is  updated after the zoomToCountry, 
+        # then it will be not re-styled in accordance to the new zoom level.
         # TODO: make the order irrelevant?
-        @updateChartCountry country
+        @updateOvervaly country, model.get("year")
         @zoomToCountry country
       @model.on 'change:year', (model, year) =>
-        @updateChartYear year
+        @updateYear year
+      @dispatcher.on "onSlide", @updateYear
+
 
     zoomToCountry: (country) ->
       #console.log "MapViz:zoomToCountry", @model.get "country"
       @map.zoomToCountry country
 
-    updateChartCountry: (country) ->
-      @map.renderOverlay country
+    updateOvervaly: (country, year) ->
+      @map.renderOverlay country, year
 
-    updateChartYear: (year) ->
-      @map.updateOverlay year
+    updateYear: (year) =>
+      @map.updateYear year

@@ -15,16 +15,10 @@ define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_title'
     }
 
     MainView.prototype.initialize = function(options) {
-      var model, viz_options;
-      model = options.model;
-      viz_options = {
-        model: model,
-        world_geo: options.world_geo,
-        cities_dataset: options.cities_dataset
-      };
       this.views = {};
-      this.views.map_viz = new MapViz(viz_options);
-      return this.views.timeline = new Timeline(viz_options);
+      this.views.map_viz = new MapViz(options);
+      this.views.map_title = new MapTitle(options);
+      return this.views.timeline = new Timeline(options);
     };
 
     MainView.prototype.render = function() {

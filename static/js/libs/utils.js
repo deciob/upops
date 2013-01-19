@@ -49,11 +49,16 @@ define(['underscore'], function(_) {
   };
   getCountryList = function(cd) {
     var countries;
-    countries = [];
+    countries = [
+      {
+        value: "world",
+        code: "world"
+      }
+    ];
     cd.each(function(row) {
       return countries.push({
-        label: row.Country,
-        value: row.iso_a2
+        value: row.Country,
+        code: row.iso_a2
       });
     });
     return _.uniq(countries, false, function(el) {

@@ -27,6 +27,18 @@ define [
       .domain([1000, 38661000])
       .range([2, 30])
 
+    ### 
+    Private functions  
+    ###
+
+    getDataset = (country) ->
+      if country == "world"
+        return c.data.overlay
+      else
+        return c.data.overlay.where
+          rows: (row) ->
+            row["iso_a2"] == country
+
     getScale = (width, height) ->
       map_proportion = 500 / 960
       view_proportion = height / width
@@ -54,9 +66,10 @@ define [
         base = JSON.parse c.data.base
       else                               # my dev server
         base = c.data.base
+      ####
       world = base.objects.world
       graticule = d3.geo.graticule()
-      c.svg.selectAll(".country")
+      m.svg.selectAll(".country")
         .data(topojson.object(base, world).geometries)
       .enter().append("path")
         .attr("id", (d) -> d.id)
@@ -70,10 +83,15 @@ define [
       c.projection.scale(scale)
       c.projection.translate([trans.x, trans.y])
 
-    m = (country) ->
+    ### 
+    Public functions  
+    ###
+
+    # Calling `m()` will render the map.
+    m = (country, year) ->
       #console.log 'mapper:m', country
-      # SVG container for the whole map (base map and cities map)
-      c.svg = d3.select(c.el)
+      # The SVG container for the whole map (base map and cities map).
+      m.svg = d3.select(c.el)
         .append("svg").attr("width", c.width).attr("height", c.height)
       scale = getScale(c.width, c.height)
       trans = getTranslation(scale)
@@ -81,12 +99,12 @@ define [
       c.projection.translate([trans.x, trans.y])
       c.path = d3.geo.path().projection(c.projection)
       m.base_map = renderBaseMap()
-      m.overlay_map = m.renderOverlay(country)
+      m.overlay_map = m.renderOverlay(country, year)
       # If the app is initialized with a country...
       if country != "world"  
         m.zoomToCountry country
 
-    m.renderOverlay = (country) ->  #svg, path, 
+    m.renderOverlay = (country, year) ->  #svg, path, 
       #console.log "mapper:renderOverlay", country, c.data.overlay
       unless c.data.overlay then return
       setEl = (el) ->
@@ -104,16 +122,11 @@ define [
         #.attr("class", (d, i) -> d.iso_a2)
         .transition()
         .duration(2000)
-        .attr("r", (d) -> circleDimension(d.POP1950))
-      if country == "world"
-        dataset = c.data.overlay
-      else
-        dataset = c.data.overlay.where
-          rows: (row) ->
-            row["iso_a2"] == country
-        
+        .attr("r", (d) ->
+          circleDimension d["POP#{year}"] )
+      dataset = getDataset(country)
       unless c.circle_g
-        c.circle_g = c.svg.append("g").attr("id", "cities_container")
+        c.circle_g = m.svg.append("g").attr("id", "cities_container")
       # DATA JOIN
       cities = c.circle_g.selectAll("circle").data dataset.toJSON()
       # UPDATE
@@ -125,8 +138,8 @@ define [
       # Return the overlay.
       c.circle_g
 
-    m.updateOverlay = (year) ->
-      #console.log 'mapper:updateOverlay', @, year
+    m.updateYear = (year) ->
+      #console.log 'mapper:updateOverlayYear', year
       d3.select(c.el).selectAll("circle").datum ->
         selection = d3.select(@)
         id = selection.attr('id').substring(2)

@@ -13,6 +13,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/app_
     initialize: function() {
       var cities_dataset, world_geo,
         _this = this;
+      this.dispatcher = _.clone(Backbone.Events);
       world_geo = $.ajax("static/data/topo_world.json");
       cities_dataset = new Miso.Dataset({
         options: this.options,
@@ -27,7 +28,8 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/app_
           model: _this.country_model,
           country_list: utils.getCountryList(cd),
           world_geo: wg[0],
-          cities_dataset: cd
+          cities_dataset: cd,
+          dispatcher: _this.dispatcher
         };
         app_title = new AppTitle(options);
         app_title.render();
@@ -41,10 +43,8 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/app_
       code = code || "world";
       year = year || 1955;
       return this.deferred.done(function() {
-        return _this.country_model.set({
-          country: code,
-          year: year
-        });
+        _this.country_model.set("country", code);
+        return _this.country_model.set("year", year);
       });
     }
   });

@@ -25,7 +25,9 @@ define [
       $( "#country_tags" ).autocomplete
         source: self.country_list
         select: (evt, ui) ->
-          Backbone.history.navigate "country/#{ui.item.value}/", trigger: true
+          year = self.model.get "year"
+          #self.model.set "country_name", ui.item.value
+          Backbone.history.navigate "country/#{ui.item.code}/#{year}/", trigger: true
 
 
   )
