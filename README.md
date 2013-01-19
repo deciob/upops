@@ -31,5 +31,8 @@ cd ~/upops
 # ... and run the flask development server!
 python app.py
 
+# Open your browser at:
+# http://0.0.0.0:5000/ 
+
 ```
 
