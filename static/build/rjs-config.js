@@ -9,7 +9,8 @@
       projection: 'vendor/projection',
       topojson: 'vendor/topojson',
       jquery: 'vendor/jquery-1.8.3.min',
-      jquery_ui: 'vendor/jquery-ui-1.9.2.custom',
+      jquery_ui: 'vendor/jquery-ui-1.10.0.custom',
+      laconic: 'vendor/laconic',
       bootstrap: 'vendor/bootstrap',
       underscore: 'vendor/miso-0.4.0/lib/lodash',
       deferred: 'vendor/miso-0.4.0/lib/underscore.deferred',
@@ -32,6 +33,9 @@
         jquery_ui: {
             deps: ['jquery'],
             exports: 'jQuery'
+        },
+        laconic: {
+            exports: 'laconic'
         },
         bootstrap: {
             exports: 'bootstrap'
@@ -68,19 +72,20 @@
         'jquery_ui',
         'math',
         'backbone',
+        'laconic',
         'text',
 
         'router',
 
         'models/world_info_model', 
 
-        'views/base', 
-        'views/country_info', 
-        'views/country_map', 
-        'views/timeline', 
-        'views/top', 
-        'views/world_info', 
-        'views/world_map'
+        'views/app_title',
+        'views/country_picker',
+        'views/map_title',
+        'views/map_viz',
+        //'views/map_legend',
+        'views/timeline'
+        //'views/extra_info'
 
     ]
    
