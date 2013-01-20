@@ -20,7 +20,6 @@ define [
     el: "#map_viz"
 
     initialize: (options) ->
-      debugger
       @model = options.model
       @world_geo = options.world_geo
       @cities_dataset = options.cities_dataset

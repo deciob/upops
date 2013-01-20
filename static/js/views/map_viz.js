@@ -21,7 +21,6 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'libs/mediator'], function(Back
     MapViz.prototype.el = "#map_viz";
 
     MapViz.prototype.initialize = function(options) {
-      debugger;
       var dms;
       this.model = options.model;
       this.world_geo = options.world_geo;
