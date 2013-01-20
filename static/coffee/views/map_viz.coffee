@@ -3,8 +3,7 @@ define [
   'libs/utils'
   'libs/mapper'
   'libs/mediator'
-  'text!templates/map_viz.html'
-], (Backbone, utils, mapper, mediator, template) ->
+], (Backbone, utils, mapper, mediator) ->
   'use strict'
 
   # The router updates the Country Model. 
