@@ -8,6 +8,8 @@ define [
 ], (Backbone, AppTitle, CountryPicker, MapView, Timeline, ExtraInfo) ->
   'use strict'
 
+  # A View subscribes to events that update subviews...
+
 
   class MainView extends Backbone.View
 
