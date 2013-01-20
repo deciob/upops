@@ -6,11 +6,11 @@ define [
   getMiddleHeight = -> 
     # TODO: pass these ids from some config
     header = $("#top")
-    footer = $("#world_info")
+    #footer = $("#world_info")
     document_h = $(document).height()
     header_h = header.height()
-    footer_h = footer.height()
-    document_h - header_h - footer_h
+    #footer_h = footer.height()
+    (document_h - header_h) * .8
 
   getScale = (width, height, map_dimensions={height: 500, width:960}) ->
     map_proportion = map_dimensions.height / map_dimensions.width

@@ -78,7 +78,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
 
     m = function(country, year) {
       var scale, trans;
-      m.svg = d3.select(c.el).append("svg").attr("width", c.width).attr("height", c.height);
+      m.svg = d3.select(c.el).append("svg").attr("width", "100%").attr("height", "100%").attr("viewBox", "0 0 " + c.width + " " + c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);

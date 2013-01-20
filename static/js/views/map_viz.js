@@ -19,6 +19,7 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
     MapViz.prototype.el = "#map_viz";
 
     MapViz.prototype.initialize = function(options) {
+      var dms;
       this.model = options.model;
       this.dispatcher = options.dispatcher;
       this.world_geo = options.world_geo;
@@ -29,8 +30,10 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
         base: this.world_geo,
         overlay: this.cities_dataset
       });
-      this.map.width(this.$el.innerWidth());
-      this.map.height(utils.getMiddleHeight());
+      dms = this.getMapVizDims();
+      this.$el.height(dms.h);
+      this.map.width(dms.w);
+      this.map.height(dms.h);
       return this.render();
     };
 
@@ -45,6 +48,27 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
         return _this.updateYear(year);
       });
       return this.dispatcher.on("onSlide", this.updateYear);
+    };
+
+    MapViz.prototype.getMapVizDims = function() {
+      var current_wh_ratio, h, map_wh_ratio, other, top, w;
+      top = $("#top").height();
+      other = 160;
+      h = $(document).height() - top - other;
+      w = this.$el.width();
+      map_wh_ratio = 960 / 500;
+      current_wh_ratio = w / h;
+      if (current_wh_ratio > map_wh_ratio) {
+        return {
+          h: h,
+          w: h * map_wh_ratio
+        };
+      } else {
+        return {
+          w: w,
+          h: w / map_wh_ratio
+        };
+      }
     };
 
     MapViz.prototype.zoomToCountry = function(country) {

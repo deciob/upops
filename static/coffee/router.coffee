@@ -17,6 +17,8 @@ define [
       "": "country"
       "country(/:code)(/:year)/": "country"
 
+    
+
     options:
       # Used within the custom Miso parser: GeoJsonParser
       columns: [
@@ -40,6 +42,7 @@ define [
         "Country",
         "iso_a2",
         "Urban_Aggl"]
+      
 
     # For this application we have 2 datasets.
     # `world_geo` is geojson data only used in d3 to create a world base map. 
@@ -57,7 +60,11 @@ define [
       @country_model = new CountryModel()
       @deferred = _.when(world_geo, cities_dataset.fetch())
       @deferred.done (wg, cd) =>
-        #console.log "onDataLoad", @, wr, cd
+        #console.log "onDataLoad", wg, cd.toJSON()
+        # Sorting dataset, from higher to lower city population.
+        comparator = (a, b) ->
+          b.POP1950 - a.POP1950
+        cd.sort(comparator)
         options = 
           model: @country_model
           country_list: utils.getCountryList(cd)

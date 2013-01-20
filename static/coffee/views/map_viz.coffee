@@ -25,8 +25,12 @@ define [
       @map = mapper()
       @map.el @el
       @map.data {base: @world_geo, overlay: @cities_dataset}
-      @map.width @$el.innerWidth()
-      @map.height utils.getMiddleHeight()
+      dms = @getMapVizDims()
+      # Setting the height on the element before map initialization,
+      # because I am using the viewBox attribute on the map svg element.
+      @$el.height(dms.h)
+      @map.width dms.w #@$el.innerWidth()
+      @map.height dms.h #utils.getMiddleHeight()
       @render()
         
     # Called only once!
@@ -47,6 +51,19 @@ define [
         @updateYear year
       @dispatcher.on "onSlide", @updateYear
 
+    getMapVizDims: ->
+      # TODO: this does not look nice hardcoded...
+      top = $("#top").height()
+      # Accounts for title and legend (temporary).
+      other = 160
+      h = $(document).height() - top - other
+      w = @$el.width()
+      map_wh_ratio = 960 / 500
+      current_wh_ratio = w / h
+      if current_wh_ratio > map_wh_ratio
+        return {h: h, w: h * map_wh_ratio}
+      else
+        return {w: w, h: w / map_wh_ratio}
 
     zoomToCountry: (country) ->
       #console.log "MapViz:zoomToCountry", @model.get "country"

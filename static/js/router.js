@@ -23,7 +23,11 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/app_
       this.country_model = new CountryModel();
       this.deferred = _.when(world_geo, cities_dataset.fetch());
       return this.deferred.done(function(wg, cd) {
-        var app_title, country_picker, options;
+        var app_title, comparator, country_picker, options;
+        comparator = function(a, b) {
+          return b.POP1950 - a.POP1950;
+        };
+        cd.sort(comparator);
         options = {
           model: _this.country_model,
           country_list: utils.getCountryList(cd),

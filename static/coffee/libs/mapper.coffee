@@ -92,7 +92,11 @@ define [
       #console.log 'mapper:m', country
       # The SVG container for the whole map (base map and cities map).
       m.svg = d3.select(c.el)
-        .append("svg").attr("width", c.width).attr("height", c.height)
+        .append("svg")
+      #.attr("width", c.width).attr("height", c.height)
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("viewBox", "0 0 #{c.width} #{c.height}")
       scale = getScale(c.width, c.height)
       trans = getTranslation(scale)
       c.projection.scale(scale)

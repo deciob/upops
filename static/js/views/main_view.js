@@ -18,11 +18,13 @@ define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_title'
       this.views = {};
       this.views.map_viz = new MapViz(options);
       this.views.map_title = new MapTitle(options);
-      return this.views.timeline = new Timeline(options);
+      this.views.map_legend = new MapLegend(options);
+      this.views.timeline = new Timeline(options);
+      return this.render();
     };
 
     MainView.prototype.render = function() {
-      return console.log("MainView:render");
+      return this.views.map_legend.render();
     };
 
     return MainView;

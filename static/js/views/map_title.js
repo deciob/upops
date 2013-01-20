@@ -19,9 +19,6 @@ define(['backbone', 'laconic'], function(Backbone, laconic) {
     MapTitle.prototype.initialize = function(options) {
       var _this = this;
       this.model = options.model;
-      this.message = $.el.h3({
-        'class': 'title'
-      }, 'World Urbanization Prospects');
       return this.model.on('change', function(model, year) {
         return _this.render();
       });
@@ -32,7 +29,7 @@ define(['backbone', 'laconic'], function(Backbone, laconic) {
       year = this.model.get('year');
       country = this.model.get('country');
       title = "" + country + " - " + year;
-      return this.$el.html($.el.p({
+      return this.$el.html($.el.h4({
         'class': 'title'
       }, title));
     };

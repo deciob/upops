@@ -5,13 +5,11 @@ define(['underscore'], function(_) {
 
   var getCountryList, getMiddleHeight, getScale, getTranslation, utils;
   getMiddleHeight = function() {
-    var document_h, footer, footer_h, header, header_h;
+    var document_h, header, header_h;
     header = $("#top");
-    footer = $("#world_info");
     document_h = $(document).height();
     header_h = header.height();
-    footer_h = footer.height();
-    return document_h - header_h - footer_h;
+    return (document_h - header_h) * .8;
   };
   getScale = function(width, height, map_dimensions) {
     var factor, map_proportion, view_proportion;

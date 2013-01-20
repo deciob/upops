@@ -17,16 +17,20 @@ define [
       @views = {}
       @views.map_viz = new MapViz options
       @views.map_title = new MapTitle options
+      @views.map_legend = new MapLegend options
       @views.timeline = new Timeline options
       #@views.extra_info = new ExtraInfo options
       # Independent from routing, so rendering immediately and once.
       #@model.on 'change', (model) =>
-      #  @render()
+      @render()
 
     render: ->
-      console.log "MainView:render"
+      #console.log "MainView:render"
       #@views.map_title.render country
       #@views.map_viz.render()
-      #@views.map_legend.render country
+      @views.map_legend.render()
       #@views.timeline.render country
       #@views.extra_info.render country
+
+
+
