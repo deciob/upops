@@ -2,7 +2,7 @@
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_title', 'views/map_viz', 'views/map_legend', 'views/timeline', 'views/extra_info'], function(Backbone, AppTitle, CountryPicker, MapTitle, MapViz, MapLegend, Timeline, ExtraInfo) {
+define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_view', 'views/timeline', 'views/extra_info'], function(Backbone, AppTitle, CountryPicker, MapView, Timeline, ExtraInfo) {
   'use strict';
 
   var MainView;
@@ -16,15 +16,16 @@ define(['backbone', 'views/app_title', 'views/country_picker', 'views/map_title'
 
     MainView.prototype.initialize = function(options) {
       this.views = {};
-      this.views.map_viz = new MapViz(options);
-      this.views.map_title = new MapTitle(options);
-      this.views.map_legend = new MapLegend(options);
+      this.views.app_title = new AppTitle(options);
+      this.views.country_picker = new CountryPicker(options);
+      this.views.map_view = new MapView(options);
       this.views.timeline = new Timeline(options);
       return this.render();
     };
 
     MainView.prototype.render = function() {
-      return this.views.map_legend.render();
+      this.views.app_title.render();
+      return this.views.country_picker.render();
     };
 
     return MainView;

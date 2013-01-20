@@ -67,10 +67,10 @@ define [
           world_geo: wg[0]
           cities_dataset: cd
         # These 2 views do not respond to route changes:
-        app_title = new AppTitle options
-        app_title.render()
-        country_picker = new CountryPicker options      
-        country_picker.render()
+        #app_title = new AppTitle options
+        #app_title.render()
+        #country_picker = new CountryPicker options      
+        #country_picker.render()
         # Grouping route views together:
         @main_view = new MainView(options)
         

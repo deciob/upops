@@ -22,7 +22,7 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/app_
       this.country_model = new CountryModel();
       this.deferred = _.when(world_geo, cities_dataset.fetch());
       return this.deferred.done(function(wg, cd) {
-        var app_title, comparator, country_picker, options;
+        var comparator, options;
         comparator = function(a, b) {
           return b.POP1950 - a.POP1950;
         };
@@ -33,10 +33,6 @@ define(['backbone', 'libs/view_manager', 'libs/geojson_miso_parser', 'views/app_
           world_geo: wg[0],
           cities_dataset: cd
         };
-        app_title = new AppTitle(options);
-        app_title.render();
-        country_picker = new CountryPicker(options);
-        country_picker.render();
         return _this.main_view = new MainView(options);
       });
     },
