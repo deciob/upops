@@ -3,7 +3,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'text!templates/timeline.html'], function(d3, $, Backbone, utils, template) {
+define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'libs/mediator', 'text!templates/timeline.html'], function(d3, $, Backbone, utils, mediator, template) {
   'use strict';
 
   var Timeline;
@@ -16,11 +16,12 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'text!templates/timeline.ht
       return Timeline.__super__.constructor.apply(this, arguments);
     }
 
+    Timeline.prototype.mediator = mediator;
+
     Timeline.prototype.el = "#timeline";
 
     Timeline.prototype.initialize = function(options) {
       this.model = options.model;
-      this.dispatcher = options.dispatcher;
       this.year = this.model.get("year");
       this.country = this.model.get("country");
       this.cities_dataset = options.cities_dataset;
@@ -54,7 +55,7 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'text!templates/timeline.ht
         max: 2025,
         step: 5,
         slide: function(event, ui) {
-          return self.dispatcher.trigger('onSlide', ui.value);
+          return self.mediator.trigger('onSlide', ui.value);
         },
         stop: function(event, ui) {
           return Backbone.history.navigate("country/" + (self.model.get('country')) + "/" + ui.value + "/", {

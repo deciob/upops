@@ -2,8 +2,9 @@ define [
   'backbone'
   'libs/utils'
   'libs/mapper'
+  'libs/mediator'
   'text!templates/map_viz.html'
-], (Backbone, utils, mapper, template) ->
+], (Backbone, utils, mapper, mediator, template) ->
   'use strict'
 
   # The router updates the Country Model. 
@@ -15,11 +16,13 @@ define [
 
   class MapViz extends Backbone.View
 
+    mediator: mediator
+
     el: "#map_viz"
 
     initialize: (options) ->
+      debugger
       @model = options.model
-      @dispatcher = options.dispatcher
       @world_geo = options.world_geo
       @cities_dataset = options.cities_dataset
       @map = mapper()
@@ -49,7 +52,7 @@ define [
         @zoomToCountry country
       @model.on 'change:year', (model, year) =>
         @updateYear year
-      @dispatcher.on "onSlide", @updateYear
+      @mediator.on "onSlide", @updateYear
 
     getMapVizDims: ->
       # TODO: this does not look nice hardcoded...

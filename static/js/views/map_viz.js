@@ -3,7 +3,7 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'], function(Backbone, utils, mapper, template) {
+define(['backbone', 'libs/utils', 'libs/mapper', 'libs/mediator', 'text!templates/map_viz.html'], function(Backbone, utils, mapper, mediator, template) {
   'use strict';
 
   var MapViz;
@@ -16,12 +16,14 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
       return MapViz.__super__.constructor.apply(this, arguments);
     }
 
+    MapViz.prototype.mediator = mediator;
+
     MapViz.prototype.el = "#map_viz";
 
     MapViz.prototype.initialize = function(options) {
+      debugger;
       var dms;
       this.model = options.model;
-      this.dispatcher = options.dispatcher;
       this.world_geo = options.world_geo;
       this.cities_dataset = options.cities_dataset;
       this.map = mapper();
@@ -47,7 +49,7 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'text!templates/map_viz.html'],
       this.model.on('change:year', function(model, year) {
         return _this.updateYear(year);
       });
-      return this.dispatcher.on("onSlide", this.updateYear);
+      return this.mediator.on("onSlide", this.updateYear);
     };
 
     MapViz.prototype.getMapVizDims = function() {
