@@ -13,7 +13,7 @@
         'backbone',
         'laconic',
         'text',
-        // All other app dependencies are found from the following 2:
+        // All other app dependencies are traced down from the following 2:
         'router',
         'main'
     ],
