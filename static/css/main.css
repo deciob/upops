@@ -48,6 +48,7 @@ body {
 /* d3 stuff
 -------------------------------------------------- */
 .background {
+  opacity: 0.3;
   fill: #a4bac7;
 }
 
@@ -84,6 +85,10 @@ circle {
   stroke: #63450E;
   stroke-width: 1px;
   cursor: pointer;
+}
+
+svg.map {
+  background: #6391C5;
 }
 
 /* d3 timeseries */

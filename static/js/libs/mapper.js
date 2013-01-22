@@ -50,7 +50,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       };
     };
     renderBaseMap = function() {
-      var base, graticule, world;
+      var base, graticule, path, world;
       if (!c.data.base) {
         return;
       }
@@ -59,8 +59,11 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       } else {
         base = c.data.base;
       }
-      world = base.objects.world;
+      path = d3.geo.path().projection(c.projection);
       graticule = d3.geo.graticule();
+      m.backgroud = m.svg.append("path").datum(graticule.outline).attr("class", "background").attr("d", path);
+      m.graticule = m.svg.append("g").attr("class", "graticule").selectAll("path").data(graticule.lines).enter().append("path").attr("d", path);
+      world = base.objects.world;
       return m.svg.selectAll(".country").data(topojson.object(base, world).geometries).enter().append("path").attr("id", function(d) {
         return d.id;
       }).attr("d", c.path).attr("class", "country");
@@ -76,21 +79,23 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
     Public functions
     */
 
-    m = function(country, year) {
+    m = function() {
       var scale, trans;
       m.svg = d3.select(c.el).append("svg").attr("width", "100%").attr("height", "100%").attr("viewBox", "0 0 " + c.width + " " + c.height);
       scale = getScale(c.width, c.height);
       trans = getTranslation(scale);
       c.projection.scale(scale);
       c.projection.translate([trans.x, trans.y]);
-      c.path = d3.geo.path().projection(c.projection);
+      return c.path = d3.geo.path().projection(c.projection);
+    };
+    m.render = function(country, year) {
       m.base_map = renderBaseMap();
-      m.overlay_map = m.renderOverlay(country, year);
+      m.overlay_map = m.updateOverlay(country, year);
       if (country !== "world") {
         return m.zoomToCountry(country);
       }
     };
-    m.renderOverlay = function(country, year) {
+    m.updateOverlay = function(country, year) {
       var cities, dataset, setEl;
       if (!c.data.overlay) {
         return;
@@ -131,7 +136,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
       return m;
     };
     m.zoomToCountry = function(country) {
-      var bounds, centered, d, el, k, x, y;
+      var bounds, centered, d, el, k, tr, x, y;
       m.base_map.style("fill", "#FFFDF7");
       if (country !== "world") {
         el = m.base_map.filter(function(f, i) {
@@ -142,7 +147,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
         if (d && centered !== d) {
           c.centroid = c.path.centroid(d);
           bounds = c.path.bounds(d);
-          k = 7;
+          k = 4;
           x = -c.centroid[0] + c.width / 2 / k;
           y = -c.centroid[1] + c.height / 2 / k;
           centered = d;
@@ -154,12 +159,15 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
         y = 0;
         k = 1;
       }
+      tr = "scale(" + k + ")translate(" + x + "," + y + ")";
       m.base_map.selectAll("path").classed("active", centered && function(d) {
         return d === centered;
       });
-      m.base_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")").style("stroke-width", .5 / k + "px");
-      m.overlay_map.transition().duration(1000).attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")");
-      return m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px");
+      m.base_map.transition().duration(1000).attr("transform", tr).style("stroke-width", .5 / k + "px");
+      m.overlay_map.transition().duration(1000).attr("transform", tr);
+      m.overlay_map.selectAll("circle").style("stroke-width", 1 / k + "px");
+      m.backgroud.transition().duration(1000).attr("transform", tr);
+      return m.graticule.transition().duration(1000).attr("transform", tr);
     };
     m.el = function(value) {
       if (!arguments.length) {

@@ -35,12 +35,13 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'libs/mediator'], function(Back
       this.$el.height(dms.h);
       this.map.width(dms.w);
       this.map.height(dms.h);
+      this.map();
       return this.render();
     };
 
     MapViz.prototype.render = function() {
       var _this = this;
-      this.map(this.model.get("country"), this.model.get("year"));
+      this.map.render(this.model.get("country"), this.model.get("year"));
       this.model.on('change:country', function(model, country) {
         _this.updateOvervaly(country, model.get("year"));
         return _this.zoomToCountry(country);
@@ -77,7 +78,7 @@ define(['backbone', 'libs/utils', 'libs/mapper', 'libs/mediator'], function(Back
     };
 
     MapViz.prototype.updateOvervaly = function(country, year) {
-      return this.map.renderOverlay(country, year);
+      return this.map.updateOverlay(country, year);
     };
 
     MapViz.prototype.updateYear = function(year) {

@@ -30,15 +30,16 @@ define [
       # Setting the height on the element before map initialization,
       # because I am using the viewBox attribute on the map svg element.
       @$el.height(dms.h)
-      @map.width dms.w #@$el.innerWidth()
-      @map.height dms.h #utils.getMiddleHeight()
+      @map.width dms.w
+      @map.height dms.h
+      @map()
       @render()
         
     # Called only once!
     # After this the map will be updated using d3 data-joins.
     render: ->
       # Render the map.
-      @map @model.get("country"), @model.get("year")
+      @map.render @model.get("country"), @model.get("year")
       # Set the callbacks.
       @model.on 'change:country', (model, country) =>
         # The order here is relevant!
@@ -71,7 +72,7 @@ define [
       @map.zoomToCountry country
 
     updateOvervaly: (country, year) ->
-      @map.renderOverlay country, year
+      @map.updateOverlay country, year
 
     updateYear: (year) =>
       @map.updateYear year
