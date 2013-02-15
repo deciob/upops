@@ -37,7 +37,7 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'libs/mediator', 'text!temp
       this.$el.html(template);
       this.renderTimeseries();
       this.renderSlider();
-      return this.model.on('change:year', function(model, year) {
+      return this.listenTo(this.model, "change:year", function(model, year) {
         return _this.updateYear(year);
       });
     };

@@ -31,7 +31,9 @@ define [
       @$el.html template
       @renderTimeseries()
       @renderSlider()
-      @model.on 'change:year', (model, year) =>
+      #@model.on 'change:year', (model, year) =>
+      #  @updateYear year
+      @listenTo @model, "change:year", (model, year) =>
         @updateYear year
 
     updateYear: (year) =>
