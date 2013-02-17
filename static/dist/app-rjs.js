@@ -31523,16 +31523,20 @@ define('views/map_title',['backbone', 'laconic'], function(Backbone, laconic) {
     MapTitle.prototype.initialize = function(options) {
       var _this = this;
       this.model = options.model;
-      return this.model.on('change', function(model, year) {
+      this.country_list = options.country_list;
+      return this.listenTo(this.model, "change:country", function(model, year) {
         return _this.render();
       });
     };
 
     MapTitle.prototype.render = function() {
-      var country, title, year;
+      var code, country, title, year;
       year = this.model.get('year');
-      country = this.model.get('country');
-      title = "" + country + " - " + year;
+      code = this.model.get('country');
+      country = _.find(this.country_list, function(el) {
+        return el.code === code;
+      });
+      title = "" + country.value + " - " + year;
       return this.$el.html($.el.h4({
         'class': 'title'
       }, title));
@@ -32041,7 +32045,7 @@ define('views/timeline',['d3', 'jquery_ui', 'backbone', 'libs/utils', 'libs/medi
       this.$el.html(template);
       this.renderTimeseries();
       this.renderSlider();
-      return this.model.on('change:year', function(model, year) {
+      return this.listenTo(this.model, "change:year", function(model, year) {
         return _this.updateYear(year);
       });
     };
