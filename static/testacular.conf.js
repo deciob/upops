@@ -25,12 +25,13 @@ files = [
   "js/vendor/miso-0.4.0/lib/moment.js",
   "js/vendor/miso-0.4.0/miso.ds.0.4.0.js",
   "js/vendor/backbone.js",
-  //"js/vendor/text-2.0.3.js",
+  "js/vendor/text-opt.js",
   "js/vendor/d3.js",
   "js/vendor/projection.js",
   "js/vendor/topojson.js",
 
-  {pattern: 'js/**/*.js', included: false},
+  //{pattern: 'data/*.json', included: false},
+  {pattern: 'js/**/*', included: false},
 
   {pattern: 'test/MyModule.test.js', included: false},
 
@@ -56,6 +57,11 @@ port = 9876;
 
 // cli runner port
 runnerPort = 9100;
+
+
+proxies =  {
+  '/static': 'http://0.0.0.0:5000/static'
+};
 
 
 // enable / disable colors in the output (reporters and logs)

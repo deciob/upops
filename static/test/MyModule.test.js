@@ -1,13 +1,21 @@
-define(['chai', 'jquery'], function(chai, $) {
+define(["chai", "backbone", "router"], function(chai, Backbone, Router) {
 
   var should = chai.should();
 
-  describe('MyModule', function () {
+  describe('Router', function () {
+
     describe('#initialize()', function () {
+
       it('should be a stinkin object', function () {
-        var yippee = "";
+        var yippee = {},
+        mainRoute;
+        mainRoute = new Router();
+        Backbone.history.start();
         yippee.should.be.an('object');
       });
+
     });
+
   });
+
 });
