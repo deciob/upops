@@ -16,9 +16,7 @@ require({
     moment: "vendor/miso-0.4.0/lib/moment",
     miso: "vendor/miso-0.4.0/miso.ds.0.4.0",
     backbone: "vendor/backbone",
-    // using teh result of:
-    // r.js -o baseUrl=. paths.text=js/vendor/text name=text out=text-opt.js
-    text: "vendor/text-opt",
+    text: "vendor/text",
     d3: "vendor/d3",
     projection: "vendor/projection",
     topojson: "vendor/topojson",

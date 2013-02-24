@@ -11,6 +11,7 @@ define(["chai", "backbone", "router"], function(chai, Backbone, Router) {
         mainRoute;
         mainRoute = new Router();
         Backbone.history.start();
+        //console.log(Backbone);
         yippee.should.be.an('object');
       });
 
