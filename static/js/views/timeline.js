@@ -48,7 +48,7 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'libs/mediator', 'text!temp
     Timeline.prototype.renderSlider = function() {
       var self;
       self = this;
-      return $("#slider").width(this.dimensions.width - this.m[1] - this.m[3]).css("left", this.m[3]).slider({
+      return this.$el.find(".timeline_slider").width(this.dimensions.width - this.m[1] - this.m[3]).css("left", this.m[3]).slider({
         value: self.model.get('year'),
         min: 1950,
         max: 2025,
@@ -83,7 +83,7 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'libs/mediator', 'text!temp
       });
       x.domain([1950, 2025]);
       y.domain([0, 38661000]);
-      svg = d3.select(el).append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2] - 60).append("svg:g").attr("transform", "translate(" + m[3] + ",0)");
+      svg = d3.select(el).select(".timeline_viz").append("svg:svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2] - 60).append("svg:g").attr("transform", "translate(" + m[3] + ",0)");
       svg.append("svg:g").attr("class", "x axis").attr("transform", "translate(0," + h + ")").call(xAxis);
       svg.append("svg:g").attr("class", "y axis").attr("transform", "translate(" + w + ",0)").call(yAxis);
       renderLine = function(row) {
