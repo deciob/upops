@@ -41,7 +41,8 @@ define [
 
     renderSlider: ->
       self = @
-      $("#slider")
+      @$el.find(".timeline_slider")
+      #$("#slider")
       .width(@dimensions.width - @m[1] - @m[3])
       .css("left", @m[3])
       .slider
@@ -95,7 +96,7 @@ define [
       #  )]).nice()
 
       # Add an SVG element with the desired dimensions and margin.
-      svg = d3.select(el).append("svg:svg")
+      svg = d3.select(el).select(".timeline_viz").append("svg:svg")
       .attr("width", w + m[1] + m[3])
       #TODO: 55 is to account for everything else in the footer
       .attr("height", h + m[0] + m[2] - 60)  
