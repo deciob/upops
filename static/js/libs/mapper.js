@@ -142,7 +142,7 @@ define(['d3', 'projection', 'topojson', 'underscore'], function(d3, projection, 
         el = m.base_map.filter(function(f, i) {
           return f.id === country;
         });
-        el.style("fill", "#860000");
+        el.style("fill", "#323742");
         d = el.data()[0];
         if (d && centered !== d) {
           c.centroid = c.path.centroid(d);

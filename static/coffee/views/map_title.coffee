@@ -11,7 +11,10 @@ define [
     initialize: (options) ->
       @model = options.model
       @country_list = options.country_list
-      @listenTo @model, "change:country", (model, year) =>
+      @render()
+      @listenTo @model, "change:country", (model, country) =>
+        @render()
+      @listenTo @model, "change:year", (model, year) =>
         @render()
       
     render: ->

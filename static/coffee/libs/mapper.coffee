@@ -173,6 +173,7 @@ define [
       m
 
     # TODO: this needs checking and reviewing.
+    # TODO: colours should be in config or in css!
     m.zoomToCountry = (country) ->
       # Reset base_map style
       m.base_map.style("fill", "#FFFDF7")
@@ -181,7 +182,7 @@ define [
         el = m.base_map.filter (f, i) ->
           f.id == country
         # Highlight the selected country
-        el.style("fill", "#860000")
+        el.style("fill", "#323742")
         d = el.data()[0]
         if d and centered isnt d
           c.centroid = c.path.centroid(d)

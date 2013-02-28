@@ -37,7 +37,8 @@ define [
         @updateYear year
 
     updateYear: (year) =>
-      $("#slider").slider "value", year
+      console.log year, $(".timeline_slider"), parseInt(year)
+      $(".timeline_slider").slider "value", year
 
     renderSlider: ->
       self = @

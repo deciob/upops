@@ -43,7 +43,8 @@ define(['d3', 'jquery_ui', 'backbone', 'libs/utils', 'libs/mediator', 'text!temp
     };
 
     Timeline.prototype.updateYear = function(year) {
-      return $("#slider").slider("value", year);
+      console.log(year, $(".timeline_slider"), parseInt(year));
+      return $(".timeline_slider").slider("value", year);
     };
 
     Timeline.prototype.renderSlider = function() {

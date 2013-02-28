@@ -5,7 +5,7 @@ var tests = Object.keys(window.__testacular__.files).filter(function (file) {
 require({
   // Testacular serves files from '/base'
   baseUrl: '/base/js',
-    paths: {
+  paths: {
     jquery: "vendor/jquery-1.8.3.min",
     jquery_ui: "vendor/jquery-ui-1.10.0.custom",
     laconic: "vendor/laconic",

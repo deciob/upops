@@ -13,22 +13,22 @@ body {
   height: auto !important;
   height: 100%;
   /* Negative indent footer by it's height */
-  margin: 0 auto -250px;
+  margin: 0 auto -60px;
 }
 
 /* Set the fixed height of the footer here */
 #push,
-#world_info {
-  height: 250px;
+#extra_info {
+  height: 60px;
 }
 /*#timeline,*/
-#top {
+#top, #extra_info {
   background-color: #f5f5f5;
 }
 
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 767px) {
-  #world_info {
+  #extra_info {
     margin-left: -20px;
     margin-right: -20px;
     padding-left: 20px;
@@ -81,7 +81,7 @@ body {
 
 circle {
   fill: #EB9700;
-  opacity: 0.6;
+  opacity: 0.7;
   stroke: #63450E;
   stroke-width: 1px;
   cursor: pointer;

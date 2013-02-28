@@ -20,7 +20,11 @@ define(['backbone', 'laconic'], function(Backbone, laconic) {
       var _this = this;
       this.model = options.model;
       this.country_list = options.country_list;
-      return this.listenTo(this.model, "change:country", function(model, year) {
+      this.render();
+      this.listenTo(this.model, "change:country", function(model, country) {
+        return _this.render();
+      });
+      return this.listenTo(this.model, "change:year", function(model, year) {
         return _this.render();
       });
     };
